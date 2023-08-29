@@ -1,8 +1,10 @@
 const cron = require("node-cron");
+const config = req("./config.json");
 const mainBackup = require("./lib/mainBackup");
 const { input } = require("@inquirer/prompts");
 const checkAllConfig = require("./lib/checkAllConfig");
 const { delErrorJson } = require("./lib/writeErrorJson");
+const backupOnError = require("./lib/backupOnError");
 
 // Validate input from user
 const validateInput = (input) => {
@@ -18,7 +20,7 @@ const main = async () => {
   // Deleting Error JSON
   delErrorJson();
 
-  const configResult = checkAllConfig();
+  const configResult = checkAllConfig(config);
 
   if (!configResult) process.exit();
 
@@ -30,11 +32,11 @@ const main = async () => {
   console.log(`Backup will be performed every ${TIME_INTERVAL} minutes\n`);
 
   // Backup for the first time
-  mainBackup(TIME_INTERVAL);
+  mainBackup(config);
 
   // Cronjob every TIME_INTERVAL
   const cronjob = cron.schedule(`*/${TIME_INTERVAL} * * * *`, () =>
-    mainBackup(TIME_INTERVAL)
+    mainBackup(config)
   );
 
   // Handle Ctrl+C or other termination signals
@@ -46,3 +48,5 @@ const main = async () => {
 };
 
 main();
+
+cron.schedule("59 23 * * *", backupOnError);
