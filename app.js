@@ -1,5 +1,5 @@
 const cron = require("node-cron");
-const config = req("./config.json");
+const config = require("./config.json");
 const mainBackup = require("./lib/mainBackup");
 const { input } = require("@inquirer/prompts");
 const checkAllConfig = require("./lib/checkAllConfig");
