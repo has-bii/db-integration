@@ -42,9 +42,10 @@ const main = async () => {
   mainBackup(config);
 
   // Cronjob every TIME_INTERVAL
-  const cronjob = cron.schedule(`*/${TIME_INTERVAL} * * * *`, () =>
-    mainBackup(config)
-  );
+  const cronjob = cron.schedule(`*/${TIME_INTERVAL} * * * *`, () => {
+    mainBackup(config);
+    backupOnError();
+  });
 
   // Handle Ctrl+C or other termination signals
   process.on("SIGINT", () => {
