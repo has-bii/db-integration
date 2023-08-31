@@ -1,0 +1,76 @@
+[
+  {
+    "connection": {
+      "source": {
+        "database": "orclpdb1",
+        "user": "system",
+        "password": "0r4cl3",
+        "host": "10.254.252.201",
+        "dialect": "oracle"
+      },
+      "target": {
+        "database": "postgres",
+        "user": "root",
+        "password": "root",
+        "host": "10.254.252.201",
+        "dialect": "postgres"
+      }
+    },
+    "tables": [
+      {
+        "sourceTable": "USERS",
+        "targetTable": "users",
+        "filterByCol": {
+          "source": "ID",
+          "target": "id",
+          "type": "PRIMARYKEY"
+        },
+        "columns": [
+          {
+            "source": "ID",
+            "target": "id"
+          },
+          {
+            "source": "NAME",
+            "target": "ad"
+          },
+          {
+            "source": "EMAIL",
+            "target": "eposta"
+          }
+        ]
+      },
+      {
+        "sourceTable": "SALES",
+        "targetTable": "sales",
+        "filterByCol": {
+          "source": "CREATED_AT",
+          "target": "created_at",
+          "type": "TIMESTAMP"
+        },
+        "columns": [
+          {
+            "source": "USER_ID",
+            "target": "user_id"
+          },
+          {
+            "source": "PRODUCT_ID",
+            "target": "product_id"
+          },
+          {
+            "source": "PAYMENT_METHOD",
+            "target": "payment_method"
+          },
+          {
+            "source": "VALUE",
+            "target": "deger"
+          },
+          {
+            "source": "CREATED_AT",
+            "target": "created_at"
+          }
+        ]
+      }
+    ]
+  }
+]

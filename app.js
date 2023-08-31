@@ -1,10 +1,10 @@
 const cron = require("node-cron");
-const config = require("./config.json");
+const fs = require("fs");
 const mainBackup = require("./lib/mainBackup");
 const { input } = require("@inquirer/prompts");
-const checkAllConfig = require("./lib/checkAllConfig");
-const { delErrorJson } = require("./lib/writeErrorJson");
+const { delErrorJson } = require("./lib/ErrorHandler");
 const backupOnError = require("./lib/backupOnError");
+const checkAllConfig = require("./lib/checkConfig");
 
 // Validate input from user
 const validateInput = (input) => {
@@ -17,8 +17,15 @@ const validateInput = (input) => {
 
 // Main
 const main = async () => {
-  // Deleting Error JSON
-  delErrorJson();
+  const path = "config.json";
+
+  console.log("Reading config file: ");
+  if (!fs.existsSync(path)) {
+    console.log("config.json does not exist!");
+    return;
+  }
+
+  const config = JSON.parse(fs.readFileSync(path, "utf8"));
 
   const configResult = checkAllConfig(config);
 
@@ -48,5 +55,3 @@ const main = async () => {
 };
 
 main();
-
-cron.schedule("59 23 * * *", backupOnError);
