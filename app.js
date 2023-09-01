@@ -1,6 +1,5 @@
 const cron = require("node-cron");
 const { input } = require("@inquirer/prompts");
-const backupOnError = require("./lib/backupOnError");
 const mainBackup = require("./lib/mainBackup");
 const { delErrorLog } = require("./lib/ErrorHandler");
 
@@ -28,7 +27,6 @@ const main = async () => {
   // Cronjob every TIME_INTERVAL
   const cronjob = cron.schedule(`*/${TIME_INTERVAL} * * * *`, () => {
     mainBackup();
-    backupOnError();
   });
 
   const cronjob2 = cron.schedule("59 23 * * *", delErrorLog);
