@@ -1,10 +1,8 @@
 const cron = require("node-cron");
-const fs = require("fs");
-const mainBackup = require("./lib/mainBackup");
 const { input } = require("@inquirer/prompts");
-const { delErrorJson } = require("./lib/ErrorHandler");
 const backupOnError = require("./lib/backupOnError");
-const checkAllConfig = require("./lib/checkConfig");
+const mainBackup = require("./lib/mainBackup");
+const { delErrorLog } = require("./lib/ErrorHandler");
 
 // Validate input from user
 const validateInput = (input) => {
@@ -17,20 +15,6 @@ const validateInput = (input) => {
 
 // Main
 const main = async () => {
-  const path = "config.json";
-
-  console.log("Reading config file: ");
-  if (!fs.existsSync(path)) {
-    console.log("config.json does not exist!");
-    return;
-  }
-
-  const config = JSON.parse(fs.readFileSync(path, "utf8"));
-
-  const configResult = checkAllConfig(config);
-
-  if (!configResult) process.exit();
-
   // Getting TIME INTERVAL from user
   const TIME_INTERVAL = await input({
     message: "Every how many minutes will the backup be performed?: ",
@@ -39,18 +23,22 @@ const main = async () => {
   console.log(`Backup will be performed every ${TIME_INTERVAL} minutes\n`);
 
   // Backup for the first time
-  mainBackup(config);
+  mainBackup();
+  backupOnError();
 
   // Cronjob every TIME_INTERVAL
   const cronjob = cron.schedule(`*/${TIME_INTERVAL} * * * *`, () => {
-    mainBackup(config);
+    mainBackup();
     backupOnError();
   });
+
+  const cronjob2 = cron.schedule("59 23 * * *", delErrorLog);
 
   // Handle Ctrl+C or other termination signals
   process.on("SIGINT", () => {
     console.log("Script terminated.\n");
     cronjob.stop();
+    cronjob2.stop();
     process.exit();
   });
 };
