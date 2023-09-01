@@ -1,5 +1,5 @@
 node_modules
 config.json
 log/*.text
-log/json/*
+log/*
 .env
