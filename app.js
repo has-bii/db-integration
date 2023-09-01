@@ -24,7 +24,6 @@ const main = async () => {
 
   // Backup for the first time
   mainBackup();
-  backupOnError();
 
   // Cronjob every TIME_INTERVAL
   const cronjob = cron.schedule(`*/${TIME_INTERVAL} * * * *`, () => {
