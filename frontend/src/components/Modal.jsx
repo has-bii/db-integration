@@ -1,0 +1,31 @@
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import PropTypes from "prop-types";
+import React from "react";
+
+function Modal({ children, setShow, show }) {
+  return (
+    <div className={`modal-container ${show ? "show" : ""}`}>
+      <div className="modal-card">
+        <div className="flex px-4 py-2 justify-between items-center bg-slate-100 border-b">
+          <h4 className="text-lg font-semibold text-slate-950">Columns</h4>
+          <button>
+            <FontAwesomeIcon
+              icon={faXmark}
+              size="lg"
+              onClick={() => setShow(false)}
+            />
+          </button>
+        </div>
+        <div className="modal-body">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+Modal.propTypes = {
+  show: PropTypes.bool.isRequired,
+  setShow: PropTypes.func.isRequired,
+};
+
+export default Modal;

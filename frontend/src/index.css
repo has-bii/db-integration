@@ -10,19 +10,27 @@
 
 @layer components {
     .btn {
-        @apply px-3 py-1.5  rounded-lg  capitalize ;
+        @apply px-3 py-1.5  rounded-md  capitalize inline-flex justify-center disabled:cursor-not-allowed;
+    }
+
+    .btn.fluid {
+        @apply w-full;
+    }
+
+    .btn.gray {
+        @apply bg-gray-300 text-white hover:bg-gray-400 hover:text-white disabled:bg-gray-200 disabled:hover:bg-gray-300 ;
     }
 
     .btn.sky {
-        @apply bg-sky-200 text-white hover:bg-sky-400 hover:text-white;
+        @apply bg-sky-300 text-white hover:bg-sky-400 hover:text-white disabled:bg-gray-200 disabled:hover:bg-gray-300;
     }
 
     .btn.red {
-        @apply bg-red-300 text-white hover:bg-red-500 hover:text-white;
+        @apply bg-red-300 text-white hover:bg-red-500 hover:text-white disabled:bg-gray-200 disabled:hover:bg-gray-300;
     }
 
     .btn.green {
-        @apply bg-green-300 text-white hover:bg-green-400 hover:text-white;
+        @apply bg-green-300 text-white hover:bg-green-400 hover:text-white disabled:bg-gray-200 disabled:hover:bg-gray-300;
     }
 }
 
@@ -96,4 +104,24 @@
 
 .tables-wrapper select,input {
     @apply w-full outline-none;
+}
+
+.modal-container {
+    @apply fixed top-0 left-0 w-screen h-screen bg-black/50 z-50 justify-center items-center hidden;
+}
+
+.modal-container.show {
+    @apply flex
+}
+
+.modal-card {
+    @apply bg-white rounded-xl border min-w-[16rem] overflow-hidden;
+}
+
+.modal-body > div:nth-child(1) {
+    @apply px-4 py-3 border-b;
+}
+
+.modal-body > div:nth-child(2) {
+    @apply px-4 py-3 flex justify-end gap-2;
 }
