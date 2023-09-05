@@ -32,6 +32,10 @@
     .btn.green {
         @apply bg-green-300 text-white hover:bg-green-400 hover:text-white disabled:bg-gray-200 disabled:hover:bg-gray-300;
     }
+
+    .btn.yellow {
+        @apply bg-yellow-200 text-white hover:bg-yellow-400 hover:text-white disabled:bg-gray-200 disabled:hover:bg-gray-300;
+    }
 }
 
 .navbar a,button {
@@ -43,7 +47,11 @@
 }
 
 .database-container {
-    @apply bg-white rounded-lg p-6 flex flex-col gap-4 border drop-shadow-xl;
+    @apply bg-white rounded-lg p-6 flex flex-col gap-4 border drop-shadow-xl mb-8;
+}
+
+.database-container.new {
+    @apply border border-sky-300 shadow-xl shadow-sky-300/50 drop-shadow-none;
 }
 
 .database-container .connection {
