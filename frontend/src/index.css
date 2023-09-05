@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        @apply bg-slate-100
+    }
+}
+
+@layer components {
+    .btn {
+        @apply px-3 py-1.5  rounded-lg  capitalize ;
+    }
+
+    .btn.sky {
+        @apply bg-sky-200 text-white hover:bg-sky-400 hover:text-white;
+    }
+
+    .btn.red {
+        @apply bg-red-300 text-white hover:bg-red-500 hover:text-white;
+    }
+
+    .btn.green {
+        @apply bg-green-300 text-white hover:bg-green-400 hover:text-white;
+    }
+}
+
+.navbar a,button {
+    @apply inline-flex items-center gap-4 text-slate-400 hover:text-sky-300 transition-colors duration-150 ease-in;
+}
+
+.navbar a.active{
+    @apply text-sky-300 font-bold;
+}
+
+.database-container {
+    @apply bg-white rounded-lg p-6 flex flex-col gap-4 border drop-shadow-xl;
+}
+
+.database-container .connection {
+    @apply flex-col lg:flex-row flex gap-8;
+}
+
+.database-container .connection .source,.target {
+    @apply w-full lg:w-1/2;
+}
+
+.database-container .heading {
+    @apply font-semibold text-lg text-slate-950 mb-2;
+}
+
+.connection .connection-wrapper {
+    @apply border rounded p-4;
+}
+
+.connection .connection-wrapper > label {
+    @apply block;
+}
+
+.connection-wrapper .connection-input-wrapper {
+    @apply inline-flex gap-4 items-center w-full mb-4;
+}
+
+.connection-input-wrapper > label {
+    @apply w-1/5 capitalize;
+}
+
+.connection-input-wrapper > input {
+    @apply bg-slate-200 px-3 py-1.5 rounded w-4/5 ml-auto;
+}
+
+.tables-wrapper {
+    @apply relative overflow-x-auto rounded;
+}
+
+.tables-wrapper table {
+    @apply table-auto w-full text-left;
+}
+
+.tables-wrapper thead {
+    @apply bg-slate-100 border rounded-t;
+}
+
+.tables-wrapper th {
+    @apply px-6 py-3 capitalize whitespace-nowrap;
+}
+
+.tables-wrapper tbody {
+    @apply divide-y border rounded-b;
+}
+
+.tables-wrapper tbody td {
+    @apply px-6 py-4;
+}
+
+.tables-wrapper select,input {
+    @apply w-full outline-none;
+}
