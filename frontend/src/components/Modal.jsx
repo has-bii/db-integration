@@ -3,12 +3,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
 import React from "react";
 
-function Modal({ children, setShow, show }) {
+function Modal({ children, setShow, show, header }) {
   return (
     <div className={`modal-container ${show ? "show" : ""}`}>
       <div className="modal-card">
         <div className="flex px-4 py-2 justify-between items-center bg-slate-100 border-b">
-          <h4 className="text-lg font-semibold text-slate-950">Columns</h4>
+          <h4 className="text-lg font-semibold text-slate-950">{header}</h4>
           <button>
             <FontAwesomeIcon
               icon={faXmark}
@@ -26,6 +26,7 @@ function Modal({ children, setShow, show }) {
 Modal.propTypes = {
   show: PropTypes.bool.isRequired,
   setShow: PropTypes.func.isRequired,
+  header: PropTypes.string.isRequired,
 };
 
 export default Modal;

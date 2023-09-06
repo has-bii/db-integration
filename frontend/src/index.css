@@ -8,37 +8,39 @@
     }
 }
 
-@layer components {
-    .btn {
-        @apply px-3 py-1.5  rounded-md  capitalize inline-flex justify-center disabled:cursor-not-allowed;
-    }
-
-    .btn.fluid {
-        @apply w-full;
-    }
-
-    .btn.gray {
-        @apply bg-gray-300 text-white hover:bg-gray-400 hover:text-white disabled:bg-gray-200 disabled:hover:bg-gray-300 ;
-    }
-
-    .btn.sky {
-        @apply bg-sky-300 text-white hover:bg-sky-400 hover:text-white disabled:bg-gray-200 disabled:hover:bg-gray-300;
-    }
-
-    .btn.red {
-        @apply bg-red-300 text-white hover:bg-red-500 hover:text-white disabled:bg-gray-200 disabled:hover:bg-gray-300;
-    }
-
-    .btn.green {
-        @apply bg-green-300 text-white hover:bg-green-400 hover:text-white disabled:bg-gray-200 disabled:hover:bg-gray-300;
-    }
-
-    .btn.yellow {
-        @apply bg-yellow-200 text-white hover:bg-yellow-400 hover:text-white disabled:bg-gray-200 disabled:hover:bg-gray-300;
-    }
+.btn {
+    @apply px-3 py-1.5 rounded-md capitalize inline-flex items-center justify-center disabled:cursor-not-allowed gap-2;
 }
 
-.navbar a,button {
+.btn.fluid {
+    @apply w-full;
+}
+
+.btn.gray {
+    @apply bg-gray-300 text-white hover:bg-gray-400 hover:text-white disabled:bg-gray-200 disabled:hover:bg-gray-300;
+}
+
+.btn.sky {
+    @apply bg-sky-300 text-white hover:bg-sky-400 hover:text-white disabled:bg-gray-200 disabled:hover:bg-gray-300;
+}
+
+.btn.red {
+    @apply bg-red-300 text-white hover:bg-red-500 hover:text-white disabled:bg-gray-200 disabled:hover:bg-gray-300;
+}
+
+.btn.green {
+    @apply bg-green-300 text-white hover:bg-green-400 hover:text-white disabled:bg-gray-200 disabled:hover:bg-gray-300;
+}
+
+.btn.yellow {
+    @apply bg-yellow-300 text-white hover:bg-yellow-400 hover:text-white disabled:bg-gray-200 disabled:hover:bg-gray-300;
+}
+
+.btn-container {
+    @apply flex justify-end gap-2;
+}
+
+.navbar a,.navbar button {
     @apply inline-flex items-center gap-4 text-slate-400 hover:text-sky-300 transition-colors duration-150 ease-in;
 }
 
@@ -52,6 +54,14 @@
 
 .database-container.new {
     @apply border border-sky-300 shadow-xl shadow-sky-300/50 drop-shadow-none;
+}
+
+.database-container.error {
+    @apply border border-red-500 shadow-xl shadow-red-500/50 drop-shadow-none;
+}
+
+.database-container.hide {
+    @apply hidden
 }
 
 .database-container .connection {
@@ -68,6 +78,10 @@
 
 .connection .connection-wrapper {
     @apply border rounded p-4;
+}
+
+.connection-wrapper.error {
+    @apply border-red-500 shadow-md shadow-red-500/50;
 }
 
 .connection .connection-wrapper > label {
