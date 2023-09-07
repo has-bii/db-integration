@@ -9,7 +9,11 @@
 }
 
 .btn {
-    @apply px-3 py-1.5 rounded-md capitalize inline-flex items-center justify-center disabled:cursor-not-allowed gap-2;
+    @apply px-3 py-1.5 rounded-md h-fit capitalize inline-flex items-center justify-center disabled:cursor-not-allowed gap-2;
+}
+
+.btn.md {
+    @apply py-1
 }
 
 .btn.fluid {
@@ -34,6 +38,10 @@
 
 .btn.yellow {
     @apply bg-yellow-300 text-white hover:bg-yellow-400 hover:text-white disabled:bg-gray-200 disabled:hover:bg-gray-300;
+}
+
+.btn.black {
+    @apply bg-black text-white hover:bg-black hover:text-white disabled:bg-gray-200 disabled:hover:bg-gray-300;
 }
 
 .btn-container {
@@ -146,4 +154,44 @@
 
 .modal-body > div:nth-child(2) {
     @apply px-4 py-3 flex justify-end gap-2;
+}
+
+.dropdown-container {
+    @apply relative
+}
+
+.dropdown-container > .dropdown-list {
+    @apply absolute top-8 right-0 bg-white z-40 rounded-md border drop-shadow-md hidden overflow-hidden;
+}
+
+.dropdown-container > .dropdown-list.show {
+    @apply block;
+}
+
+.dropdown-list > ul {
+    @apply divide-y;
+}
+
+.dropdown-list > ul > li {
+    @apply  hover:bg-slate-50 transition-colors duration-150 ease-out
+}
+
+.dropdown-list>ul>li>button {
+    @apply inline-flex items-center w-full gap-2 capitalize px-4 py-2
+}
+
+.toast-container {
+    @apply fixed bottom-8 right-8 z-50
+}
+
+.toast-container > .toast {
+    @apply px-6 py-4 rounded-lg border drop-shadow-lg flex gap-8 justify-between items-center min-w-[8rem]
+}
+
+.toast.green {
+    @apply border-green-500 bg-green-200 text-green-500
+}
+
+.toast.red {
+    @apply border-red-500 bg-red-200 text-red-500
 }

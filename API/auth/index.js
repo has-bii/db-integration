@@ -19,7 +19,7 @@ router.post("/", (req, res) => {
         .json({ message: "Login successful", access_token: token });
     });
   } else {
-    res.status(401).send("Incorrect password");
+    res.status(401).json({ message: "Incorrect password" });
   }
 });
 

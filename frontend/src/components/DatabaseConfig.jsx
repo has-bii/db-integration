@@ -3,7 +3,8 @@ import Modal from "./Modal";
 import { useState } from "react";
 import axios from "../../lib/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleNotch, faL } from "@fortawesome/free-solid-svg-icons";
+import { faCircleNotch } from "@fortawesome/free-solid-svg-icons";
+import { useToast } from "./ToastProvider";
 
 function DatabaseConfig({
   database,
@@ -20,35 +21,13 @@ function DatabaseConfig({
   delTables,
   delDatabaseHandler,
 }) {
+  const { pushToast } = useToast();
   const [delModal, setDelModal] = useState(false);
   const [delDB, setDelDB] = useState({ dbIndex: "", connection: {} });
   const [loadingSource, setLoadingSource] = useState(false);
   const [loadingTarget, setLoadingTarget] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
   const [errorSource, setErrorSource] = useState(false);
   const [errorTarget, setErrorTarget] = useState(false);
-
-  function checkConfig(config) {
-    async function check() {
-      setLoading(true);
-      const res = await axios
-        .post("/config/check", { config: JSON.stringify(config) })
-        .then((res) => {
-          console.log(res.data);
-          setError(false);
-          return res.data;
-        })
-        .catch((err) => {
-          console.error(err);
-          setError(true);
-          return null;
-        })
-        .finally(() => setLoading(false));
-    }
-
-    check();
-  }
 
   function checkConnection(connection, setLoad, setError) {
     async function check() {
@@ -59,7 +38,6 @@ function DatabaseConfig({
           connection: JSON.stringify(connection),
         })
         .then((res) => {
-          console.log(res.data);
           setError(false);
           return res.data;
         })
@@ -69,6 +47,9 @@ function DatabaseConfig({
           return null;
         })
         .finally(() => setLoad(false));
+
+      if (res) pushToast(res.ok, res.message);
+      else pushToast(false, "Failed to connect!");
     }
 
     check();
@@ -107,7 +88,7 @@ function DatabaseConfig({
           </button>
         </div>
       </Modal>
-      <div className={`database-container ${error ? "error" : ""}`}>
+      <div className="database-container">
         <div className="connection">
           <div className="source">
             <h4 className="heading">Source</h4>
@@ -169,7 +150,7 @@ function DatabaseConfig({
                 <input
                   id={"source-port-" + index}
                   type="number"
-                  placeholder="Port"
+                  placeholder="1521"
                   value={database.connection.source.port}
                   onChange={(e) => {
                     updateConnectionSourceHandler(e, index, "port");
@@ -199,7 +180,7 @@ function DatabaseConfig({
                   }
                   disabled={loadingSource}
                 >
-                  test
+                  test connection
                   {loadingSource && (
                     <FontAwesomeIcon
                       icon={faCircleNotch}
@@ -270,7 +251,7 @@ function DatabaseConfig({
                 <input
                   id={"target-port-" + index}
                   type="number"
-                  placeholder="Port"
+                  placeholder="5432"
                   value={database.connection.target.port}
                   onChange={(e) => {
                     updateConnectionTargetHandler(e, index, "port");
@@ -300,7 +281,7 @@ function DatabaseConfig({
                   }
                   disabled={loadingTarget}
                 >
-                  test
+                  test connection
                   {loadingTarget && (
                     <FontAwesomeIcon
                       icon={faCircleNotch}
@@ -534,16 +515,6 @@ function DatabaseConfig({
           </div>
         </div>
         <div className="btn-container">
-          <button
-            className="btn yellow"
-            onClick={() => checkConfig(database)}
-            disabled={loading}
-          >
-            check
-            {loading && (
-              <FontAwesomeIcon icon={faCircleNotch} className=" animate-spin" />
-            )}
-          </button>
           <button
             className="btn red"
             onClick={() => {

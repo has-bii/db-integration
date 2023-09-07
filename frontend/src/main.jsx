@@ -7,6 +7,7 @@ import "./index.css";
 import { CookiesProvider } from "react-cookie";
 import Database from "./routes/database";
 import ErrorDatabase from "./routes/errorDatabase";
+import { ToastProvider } from "./components/ToastProvider";
 
 const router = createBrowserRouter([
   {
@@ -30,7 +31,9 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <CookiesProvider defaultSetCookies={{ path: "/" }}>
-      <RouterProvider router={router} />
+      <ToastProvider>
+        <RouterProvider router={router} />
+      </ToastProvider>
     </CookiesProvider>
   </React.StrictMode>
 );

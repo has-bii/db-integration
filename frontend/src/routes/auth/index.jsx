@@ -4,8 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import axios from "../../../lib/axios";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
+import { useToast } from "../../components/ToastProvider";
 
 export default function Login() {
+  const { pushToast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const passRef = useRef();
   const navigate = useNavigate();
@@ -18,24 +20,26 @@ export default function Login() {
   const submitHandler = async (event) => {
     event.preventDefault();
 
-    try {
-      const response = await axios.post("/login", {
+    const response = await axios
+      .post("/login", {
         password: passRef.current.value,
+      })
+      .then((res) => res.data)
+      .catch((err) => {
+        if (err.response.data.message)
+          pushToast(false, err.response.data.message);
+        console.error("Failed to login: ", err);
+        return null;
       });
 
-      passRef.current.value = "";
+    passRef.current.value = "";
 
-      if (response.status === 200) {
-        console.log("Logged successfully.");
+    if (response) {
+      pushToast(true, response.message);
 
-        setCookie("access_token", response.data.access_token);
+      setCookie("access_token", response.access_token);
 
-        navigate("/");
-      } else {
-        console.error("Login failed with status code: ", response.status);
-      }
-    } catch (error) {
-      console.error("Error while Logging in: ", error);
+      navigate("/");
     }
   };
 

@@ -3,31 +3,47 @@ import Layout from "../../components/Layout";
 import axios from "../../../lib/axios";
 import Modal from "../../components/Modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowsRotate,
+  faCheck,
+  faCircleNotch,
+  faClock,
+  faFloppyDisk,
+  faPlay,
+  faPlus,
+  faRotate,
+  faStop,
+} from "@fortawesome/free-solid-svg-icons";
 import DatabaseConfig from "../../components/DatabaseConfig";
 import NewDBConfig from "../../components/NewDBConfig";
+import Dropdown from "../../components/Dropdown";
+import { useToast } from "../../components/ToastProvider";
 
 export default function Database() {
+  const { pushToast } = useToast();
+  const firstMount = useRef(false);
+  const [myTimeout, setMyTimeout] = useState(null);
+  const [saving, setSaving] = useState(false);
   const [databases, setDatabases] = useState([]);
   const [columnsModal, setColumnsModal] = useState(false);
-
+  const [loading, setLoading] = useState(true);
+  const [loadStatus, setLoadStatus] = useState(true);
+  const [timestamp, setTimestamp] = useState(null);
+  const [timeInterval, setTimeInterval] = useState("");
+  const [status, setStatus] = useState(false);
   const [selected, setSelected] = useState({
     dbIndex: "",
     tableIndex: "",
   });
-
   const [newTable, setNewTable] = useState({
     sourceTable: "",
     targetTable: "",
     filterByCol: { source: "", target: "", type: "PRIMARYKEY" },
     columns: [],
   });
-
   const [newColumns, setNewColumns] = useState([]);
-
   const sourceNameRef = useRef();
   const targetNameRef = useRef();
-
   const [showNewDB, setShowNewDB] = useState(false);
   const [newDB, setNewDB] = useState({
     connection: {
@@ -57,20 +73,64 @@ export default function Database() {
     columns: [],
   });
 
+  async function fetchDatabases() {
+    await axios
+      .get("/config")
+      .then((res) => {
+        setDatabases(res.data.config);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error while fetching Database Configuration: ", err);
+      });
+  }
+
   useEffect(() => {
-    async function fetchDatabases() {
+    fetchDatabases();
+  }, []);
+
+  useEffect(() => {
+    async function fetchBackup() {
       await axios
-        .get("/config")
+        .get("/backup/isRunning")
         .then((res) => {
-          setDatabases(res.data.config);
+          setStatus(res.data.status);
+
+          setTimestamp(res.data.timestamp);
+
+          setTimeInterval(res.data.interval);
+
+          setLoadStatus(false);
         })
         .catch((err) => {
-          console.error("Error while fetching Database Configuration: ", err);
+          console.error("Error while checking backup is running: ", err);
         });
     }
 
-    fetchDatabases();
+    fetchBackup();
   }, []);
+
+  useEffect(() => {
+    if (timeInterval.length !== 0) {
+      if (timeInterval > 59) setTimeInterval(59);
+
+      if (timeInterval <= 0) setTimeInterval(1);
+    }
+  }, [timeInterval]);
+
+  useEffect(() => {
+    if (!firstMount) firstMount.current.value = true;
+    else {
+      if (myTimeout) clearTimeout(myTimeout);
+
+      setMyTimeout(
+        setTimeout(() => {
+          saveConfigs();
+          setSaving(true);
+        }, 1000)
+      );
+    }
+  }, [databases]);
 
   function updateConnectionSourceHandler(e, i, property) {
     const updated = databases.map((database, index) => {
@@ -220,18 +280,94 @@ export default function Database() {
     setDatabases(databases.filter((db, i) => i !== indexDB));
   }
 
+  function saveConfigs() {
+    async function save() {
+      const result = await axios
+        .post("/config/update", { config: JSON.stringify(databases) })
+        .then((res) => {
+          setSaving(false);
+          return res.data;
+        })
+        .catch((err) => {
+          pushToast(false, "Failed to save config!");
+          console.error("Error while saving configurations!\nError: ", err);
+          return null;
+        });
+    }
+
+    save();
+  }
+
+  function startBackup() {
+    async function start() {
+      pushToast(true, "Starting backup...");
+      const result = await axios
+        .post("/backup/start", { timeInterval })
+        .then((res) => {
+          setStatus(res.data.status);
+          setTimestamp(res.data.timestamp);
+          setTimeInterval(res.data.interval);
+          return res.data;
+        })
+        .catch((err) => {
+          console.error("Error while starting main backup!\nError: ", err);
+          return null;
+        });
+
+      if (result) pushToast(result.status, result.message);
+      else pushToast(false, "Failed to start backup!");
+    }
+
+    start();
+  }
+
+  function stopBackup() {
+    async function stop() {
+      pushToast(true, "Stopping backup...");
+      const result = await axios
+        .get("/backup/stop")
+        .then((res) => {
+          setStatus(res.data.status);
+          setTimestamp(res.data.timestamp);
+          return res.data;
+        })
+        .catch((err) => {
+          console.error("Error while stopping main backup!\nError: ", err);
+          return null;
+        });
+
+      if (result) pushToast(result.status, result.message);
+      else pushToast(false, "Failed to stop backup!");
+    }
+
+    stop();
+  }
+
+  async function applyInterval() {
+    async function restart() {
+      pushToast(true, "Restarting backup...");
+      const result = await axios
+        .post("/backup/restart", { timeInterval })
+        .then((res) => {
+          setStatus(res.data.status);
+          setTimestamp(res.data.timestamp);
+          setTimeInterval(res.data.interval);
+          return res.data;
+        })
+        .catch((err) => {
+          console.error("Error while restarting main backup!\nError: ", err);
+          return null;
+        });
+
+      if (result) pushToast(result.status, result.message);
+      else pushToast(false, "Failed to restart backup!");
+    }
+
+    restart();
+  }
+
   return (
     <>
-      <button
-        className={`fixed bottom-10 right-10 p-4 text-white z-40 transition-all duration-300 ease-in-out rounded-full ${
-          showNewDB ? "rotate-45 bg-red-400" : "rotate-0 bg-black"
-        }`}
-        onClick={() => setShowNewDB(!showNewDB)}
-      >
-        <div className="px-[2px]">
-          <FontAwesomeIcon icon={faPlus} size="2xl" />
-        </div>
-      </button>
       <Modal
         show={columnsModal}
         setShow={setColumnsModal}
@@ -307,7 +443,109 @@ export default function Database() {
         </div>
       </Modal>
       <Layout>
-        <div className="text-2xl font-bold text-slate-950 mb-4">Databases</div>
+        <div className="flex flex-row gap-4 items-center mb-4">
+          <div className="text-2xl font-bold text-slate-950">Databases</div>
+          {!loadStatus && (
+            <>
+              <div
+                className={`px-3 py-1 rounded-md text-sm first-letter:uppercase border ${
+                  status
+                    ? "border-green-500 text-green-500"
+                    : "border-red-500 text-red-500"
+                }`}
+              >
+                {status ? "Running at" : "stopped at"}
+              </div>
+              {timestamp && (
+                <div className="inline-flex gap-2 items-center text-slate-400">
+                  <FontAwesomeIcon icon={faClock} />
+                  <span>
+                    {new Date(timestamp).toLocaleString().replaceAll("/", "-")}
+                  </span>
+                </div>
+              )}
+            </>
+          )}
+          <div className="flex flex-row gap-4 ml-auto items-center">
+            <div className="inline-flex gap-2 items-center text-slate-400">
+              {saving ? (
+                <>
+                  <FontAwesomeIcon
+                    icon={faArrowsRotate}
+                    className="animate-spin"
+                  />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <FontAwesomeIcon icon={faCheck} />
+                  <span>Saved</span>
+                </>
+              )}
+            </div>
+
+            <div className="inline-flex bg-white border rounded-md overflow-hidden">
+              <button
+                className="px-3 bg-black py-1 text-white capitalize border-r"
+                onClick={applyInterval}
+              >
+                apply
+              </button>
+              <input
+                type="number"
+                placeholder="Interval in 1-59 mins"
+                className="px-3 py-1 bg-transparent w-fit"
+                value={timeInterval}
+                onChange={(e) => setTimeInterval(e.target.value)}
+              />
+            </div>
+            <Dropdown>
+              <ul>
+                <li>
+                  <button onClick={() => setShowNewDB(true)}>
+                    <FontAwesomeIcon icon={faPlus} />
+                    Add
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => {
+                      pushToast(true, "Saving...");
+                      saveConfigs();
+                    }}
+                  >
+                    <FontAwesomeIcon icon={faFloppyDisk} />
+                    Save
+                  </button>
+                </li>
+                <li>
+                  <button onClick={startBackup}>
+                    <FontAwesomeIcon icon={faPlay} />
+                    Start
+                  </button>
+                </li>
+                <li>
+                  <button onClick={stopBackup}>
+                    <FontAwesomeIcon icon={faStop} />
+                    Stop
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => {
+                      setDatabases([]);
+                      setLoading(true);
+                      fetchDatabases();
+                    }}
+                  >
+                    <FontAwesomeIcon icon={faRotate} />
+                    refresh
+                  </button>
+                </li>
+              </ul>
+            </Dropdown>
+          </div>
+        </div>
 
         {/* New DB */}
 
@@ -325,7 +563,16 @@ export default function Database() {
         />
 
         {/* Databases */}
-        {databases.length > 0 &&
+        {loading ? (
+          <div className="w-full h-80 flex justify-center items-center text-2xl gap-4 text-slate-300 font-semibold animate-pulse">
+            Fetching data...
+            <FontAwesomeIcon
+              icon={faCircleNotch}
+              size="lg"
+              className="animate-spin"
+            />
+          </div>
+        ) : databases.length > 0 ? (
           databases.map((database, index) => (
             <DatabaseConfig
               key={index}
@@ -343,7 +590,12 @@ export default function Database() {
               setSelected={setSelected}
               delTables={delTables}
             />
-          ))}
+          ))
+        ) : (
+          <div className="w-full h-80 flex justify-center items-center text-2xl text-slate-300 font-semibold">
+            There is no configuration.
+          </div>
+        )}
       </Layout>
     </>
   );

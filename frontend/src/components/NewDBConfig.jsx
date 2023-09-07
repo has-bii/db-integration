@@ -24,31 +24,8 @@ function NewDBConfig({
 
   const [loadingSource, setLoadingSource] = useState(false);
   const [loadingTarget, setLoadingTarget] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
   const [errorSource, setErrorSource] = useState(false);
   const [errorTarget, setErrorTarget] = useState(false);
-
-  function checkConfig(config) {
-    async function check() {
-      setLoading(true);
-      const res = await axios
-        .post("/config/check", { config: JSON.stringify(config) })
-        .then((res) => {
-          console.log(res.data);
-          setError(false);
-          return res.data;
-        })
-        .catch((err) => {
-          console.error(err);
-          setError(true);
-          return null;
-        })
-        .finally(() => setLoading(false));
-    }
-
-    check();
-  }
 
   function checkConnection(connection, setLoad, setError) {
     async function check() {
@@ -266,9 +243,7 @@ function NewDBConfig({
       </Modal>
       <form
         onSubmit={saveNewDB}
-        className={`database-container ${error ? "error" : "new"} ${
-          showNewDB ? "" : "hide"
-        }`}
+        className={`database-container new ${showNewDB ? "" : "hide"}`}
       >
         <div className="connection">
           <div className="source">
@@ -836,23 +811,13 @@ function NewDBConfig({
           </div>
         </div>
         <div className="btn-container">
-          <button className="btn gray" type="reset" onClick={clearNewDB}>
+          <button className="btn red" type="reset" onClick={clearNewDB}>
             Cancel
-          </button>
-          <button
-            className="btn yellow"
-            onClick={() => checkConfig(newDB)}
-            disabled={loading}
-          >
-            check
-            {loading && (
-              <FontAwesomeIcon icon={faCircleNotch} className=" animate-spin" />
-            )}
           </button>
           <button
             type="submit"
             className="btn green"
-            disabled={errorSource || errorTarget}
+            disabled={errorSource || errorTarget || newDB.tables.length === 0}
           >
             Save
           </button>
