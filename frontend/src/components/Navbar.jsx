@@ -25,10 +25,10 @@ export default function Navbar() {
         BACKUP DB
       </div>
       <ul className="flex flex-row gap-8 justify-center py-4 border-b navbar overflow-auto">
-        <li className="pl-28 md:pl-0">
+        <li>
           <Link className={location.pathname === "/" ? "active" : ""} to={"/"}>
             <FontAwesomeIcon icon={faDungeon} size="xl" />
-            Dashboard
+            <span className="hidden md:block">Dashboard</span>
           </Link>
         </li>
         <li>
@@ -37,7 +37,7 @@ export default function Navbar() {
             to={"/database"}
           >
             <FontAwesomeIcon icon={faDatabase} size="xl" />
-            Database
+            <span className="hidden md:block">Database</span>
           </Link>
         </li>
         <li>
@@ -46,16 +46,16 @@ export default function Navbar() {
             to={"/error"}
           >
             <FontAwesomeIcon icon={faCircleExclamation} size="xl" />
-            Error
+            <span className="hidden md:block">Error</span>
           </Link>
         </li>
-        <li className="pr-4 md:pr-0">
+        <li>
           <button
             onClick={logoutHandler}
             className="inline-flex gap-2 items-center"
           >
             <FontAwesomeIcon icon={faRightFromBracket} size="xl" />
-            Logout
+            <span className="hidden md:block">Logout</span>
           </button>
         </li>
       </ul>
