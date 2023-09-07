@@ -88,8 +88,6 @@ export default function Database() {
 
   useEffect(() => {
     fetchDatabases();
-
-    setFirstMount(true);
   }, []);
 
   useEffect(() => {
@@ -131,7 +129,7 @@ export default function Database() {
           setSaving(true);
         }, 1000)
       );
-    }
+    } else setFirstMount(true);
   }, [databases]);
 
   function updateConnectionSourceHandler(e, i, property) {
