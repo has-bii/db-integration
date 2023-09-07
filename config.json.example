@@ -6,6 +6,7 @@
         "user": "system",
         "password": "0r4cl3",
         "host": "10.254.252.201",
+        "port": "1521",
         "dialect": "oracle"
       },
       "target": {
@@ -13,33 +14,11 @@
         "user": "root",
         "password": "root",
         "host": "10.254.252.201",
+        "port": "5432",
         "dialect": "postgres"
       }
     },
     "tables": [
-      {
-        "sourceTable": "USERS",
-        "targetTable": "users",
-        "filterByCol": {
-          "source": "ID",
-          "target": "id",
-          "type": "PRIMARYKEY"
-        },
-        "columns": [
-          {
-            "source": "ID",
-            "target": "id"
-          },
-          {
-            "source": "NAME",
-            "target": "ad"
-          },
-          {
-            "source": "EMAIL",
-            "target": "eposta"
-          }
-        ]
-      },
       {
         "sourceTable": "SALES",
         "targetTable": "sales",
@@ -68,6 +47,25 @@
           {
             "source": "CREATED_AT",
             "target": "created_at"
+          }
+        ]
+      },
+      {
+        "sourceTable": "USERS",
+        "targetTable": "users",
+        "filterByCol": {
+          "source": "ID",
+          "target": "id",
+          "type": "PRIMARYKEY"
+        },
+        "columns": [
+          {
+            "source": "ID",
+            "target": "id"
+          },
+          {
+            "source": "USER_ID",
+            "target": "user_id"
           }
         ]
       }
