@@ -6,16 +6,19 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowsRotate,
   faCheck,
+  faCircleExclamation,
   faCircleNotch,
   faClock,
   faFloppyDisk,
   faPlay,
   faRotate,
+  faRotateRight,
   faStop,
 } from "@fortawesome/free-solid-svg-icons";
 import DatabaseConfig from "../../components/DatabaseConfig";
 import Dropdown from "../../components/Dropdown";
 import { useToast } from "../../components/ToastProvider";
+import LogError from "../../components/LogError";
 
 export default function ErrorDatabase() {
   const { pushToast } = useToast();
@@ -44,6 +47,7 @@ export default function ErrorDatabase() {
   const [newColumns, setNewColumns] = useState([]);
   const sourceNameRef = useRef();
   const targetNameRef = useRef();
+  const [logModal, setLogModal] = useState(false);
 
   async function fetchDatabases() {
     await axios
@@ -416,6 +420,7 @@ export default function ErrorDatabase() {
           </button>
         </div>
       </Modal>
+      <LogError logModal={logModal} setLogModal={setLogModal} />
       <Layout>
         <div className="flex flex-row gap-4 items-center mb-4">
           <div className="text-2xl font-bold text-slate-950">
@@ -500,6 +505,12 @@ export default function ErrorDatabase() {
             <Dropdown>
               <ul>
                 <li>
+                  <button onClick={() => setLogModal(true)}>
+                    <FontAwesomeIcon icon={faCircleExclamation} />
+                    Logs
+                  </button>
+                </li>
+                <li>
                   <button
                     onClick={() => {
                       pushToast(true, "Saving...");
@@ -520,6 +531,12 @@ export default function ErrorDatabase() {
                   <button onClick={stopBackup}>
                     <FontAwesomeIcon icon={faStop} />
                     Stop
+                  </button>
+                </li>
+                <li>
+                  <button onClick={applyInterval}>
+                    <FontAwesomeIcon icon={faRotateRight} />
+                    Restart
                   </button>
                 </li>
                 <li>

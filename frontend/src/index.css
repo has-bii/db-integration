@@ -145,7 +145,7 @@
 }
 
 .modal-card {
-    @apply bg-white rounded-xl border min-w-[16rem] overflow-hidden;
+    @apply bg-white rounded-xl border min-w-[16rem] overflow-hidden max-w-full max-h-full;
 }
 
 .modal-body > div:nth-child(1) {

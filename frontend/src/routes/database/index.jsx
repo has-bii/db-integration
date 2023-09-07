@@ -12,6 +12,7 @@ import {
   faPlay,
   faPlus,
   faRotate,
+  faRotateRight,
   faStop,
 } from "@fortawesome/free-solid-svg-icons";
 import DatabaseConfig from "../../components/DatabaseConfig";
@@ -293,6 +294,8 @@ export default function Database() {
           console.error("Error while saving configurations!\nError: ", err);
           return null;
         });
+
+      if (result) pushToast(true, result.message);
     }
 
     save();
@@ -528,6 +531,12 @@ export default function Database() {
                   <button onClick={stopBackup}>
                     <FontAwesomeIcon icon={faStop} />
                     Stop
+                  </button>
+                </li>
+                <li>
+                  <button onClick={applyInterval}>
+                    <FontAwesomeIcon icon={faRotateRight} />
+                    Restart
                   </button>
                 </li>
                 <li>
