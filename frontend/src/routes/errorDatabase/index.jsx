@@ -422,14 +422,14 @@ export default function ErrorDatabase() {
       </Modal>
       <LogError logModal={logModal} setLogModal={setLogModal} />
       <Layout>
-        <div className="flex flex-row gap-4 items-center mb-4">
+        <div className="flex flex-col px-4 md:px-0 md:flex-row gap-4 md:items-center mb-4">
           <div className="text-2xl font-bold text-slate-950">
             Error Databases
           </div>
           {!loadStatus && (
-            <>
+            <div className="inline-flex gap-4">
               <div
-                className={`px-3 py-1 rounded-md text-sm first-letter:uppercase border ${
+                className={`px-3 py-1 rounded-md text-sm w-fit first-letter:uppercase border ${
                   status
                     ? "border-green-500 text-green-500"
                     : "border-red-500 text-red-500"
@@ -445,7 +445,7 @@ export default function ErrorDatabase() {
                   </span>
                 </div>
               )}
-            </>
+            </div>
           )}
           <div className="flex flex-row gap-4 ml-auto items-center">
             <div className="inline-flex gap-2 items-center text-slate-400">
@@ -476,7 +476,7 @@ export default function ErrorDatabase() {
                 <input
                   type="number"
                   placeholder="Interval in 1-59 mins"
-                  className="px-3 py-1 bg-transparent w-fit"
+                  className="px-3 py-1 bg-transparent max-w-xs"
                   value={timeInterval}
                   onChange={(e) => setTimeInterval(e.target.value)}
                 />
@@ -489,18 +489,17 @@ export default function ErrorDatabase() {
                   onChange={(e) => setTime(e.target.value)}
                 />
               )}
+              <button
+                className="px-3 bg-black py-1 text-white capitalize border-l"
+                onClick={() => {
+                  if (type === "interval") {
+                    setType("time");
+                  } else setType("interval");
+                }}
+              >
+                change
+              </button>
             </div>
-
-            <button
-              className="btn md black"
-              onClick={() => {
-                if (type === "interval") {
-                  setType("time");
-                } else setType("interval");
-              }}
-            >
-              Change Type
-            </button>
 
             <Dropdown>
               <ul>

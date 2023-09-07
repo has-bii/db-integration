@@ -24,8 +24,8 @@ export default function Navbar() {
       <div className=" flex justify-center text-2xl font-extrabold border-b py-4 text-gray-700">
         BACKUP DB
       </div>
-      <ul className="flex flex-row gap-8 justify-center py-4 border-b navbar">
-        <li>
+      <ul className="flex flex-row gap-8 justify-center py-4 border-b navbar overflow-auto">
+        <li className="pl-28 md:pl-0">
           <Link className={location.pathname === "/" ? "active" : ""} to={"/"}>
             <FontAwesomeIcon icon={faDungeon} size="xl" />
             Dashboard
@@ -49,7 +49,7 @@ export default function Navbar() {
             Error
           </Link>
         </li>
-        <li>
+        <li className="pr-4 md:pr-0">
           <button
             onClick={logoutHandler}
             className="inline-flex gap-2 items-center"

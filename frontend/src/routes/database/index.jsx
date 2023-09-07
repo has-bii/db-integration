@@ -446,12 +446,12 @@ export default function Database() {
         </div>
       </Modal>
       <Layout>
-        <div className="flex flex-row gap-4 items-center mb-4">
+        <div className="flex flex-col px-4 md:px-0 md:flex-row gap-4 lg:items-center mb-4">
           <div className="text-2xl font-bold text-slate-950">Databases</div>
           {!loadStatus && (
-            <>
+            <div className="flex gap-4">
               <div
-                className={`px-3 py-1 rounded-md text-sm first-letter:uppercase border ${
+                className={`px-3 py-1 rounded-md text-sm w-fit first-letter:uppercase border ${
                   status
                     ? "border-green-500 text-green-500"
                     : "border-red-500 text-red-500"
@@ -467,7 +467,7 @@ export default function Database() {
                   </span>
                 </div>
               )}
-            </>
+            </div>
           )}
           <div className="flex flex-row gap-4 ml-auto items-center">
             <div className="inline-flex gap-2 items-center text-slate-400">
@@ -497,7 +497,7 @@ export default function Database() {
               <input
                 type="number"
                 placeholder="Interval in 1-59 mins"
-                className="px-3 py-1 bg-transparent w-fit"
+                className="px-3 py-1 bg-transparent max-w-xs"
                 value={timeInterval}
                 onChange={(e) => setTimeInterval(e.target.value)}
               />
