@@ -22,7 +22,7 @@ import LogError from "../../components/LogError";
 
 export default function ErrorDatabase() {
   const { pushToast } = useToast();
-  const firstMount = useRef("true");
+  const [firstMount, setFirstMount] = useState(true);
   const [myTimeout, setMyTimeout] = useState(null);
   const [saving, setSaving] = useState(false);
   const [databases, setDatabases] = useState([]);
@@ -63,6 +63,8 @@ export default function ErrorDatabase() {
 
   useEffect(() => {
     fetchDatabases();
+
+    setFirstMount(true);
   }, []);
 
   useEffect(() => {
@@ -90,8 +92,7 @@ export default function ErrorDatabase() {
   }, []);
 
   useEffect(() => {
-    if (firstMount === "true") firstMount.current.value = "false";
-    else {
+    if (firstMount) {
       if (myTimeout) clearTimeout(myTimeout);
 
       setMyTimeout(

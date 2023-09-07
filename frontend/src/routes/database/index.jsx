@@ -22,7 +22,7 @@ import { useToast } from "../../components/ToastProvider";
 
 export default function Database() {
   const { pushToast } = useToast();
-  const firstMount = useRef(false);
+  const [firstMount, setFirstMount] = useState(false);
   const [myTimeout, setMyTimeout] = useState(null);
   const [saving, setSaving] = useState(false);
   const [databases, setDatabases] = useState([]);
@@ -88,6 +88,8 @@ export default function Database() {
 
   useEffect(() => {
     fetchDatabases();
+
+    setFirstMount(true);
   }, []);
 
   useEffect(() => {
@@ -120,8 +122,7 @@ export default function Database() {
   }, [timeInterval]);
 
   useEffect(() => {
-    if (!firstMount) firstMount.current.value = true;
-    else {
+    if (firstMount) {
       if (myTimeout) clearTimeout(myTimeout);
 
       setMyTimeout(
