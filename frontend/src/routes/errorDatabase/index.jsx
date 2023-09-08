@@ -486,7 +486,7 @@ export default function ErrorDatabase() {
             onClick={() => {
               setColumnsModal(false);
               setSelectedTable({ connection: {}, table: {} });
-              setFetchedCols([]);
+              setFetchedCols({ source: [], target: [] });
             }}
           >
             Cancel

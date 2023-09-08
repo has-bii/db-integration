@@ -503,7 +503,7 @@ export default function Database() {
             onClick={() => {
               setColumnsModal(false);
               setSelectedTable({ connection: {}, table: {} });
-              setFetchedCols([]);
+              setFetchedCols({ source: [], target: [] });
             }}
           >
             Cancel
