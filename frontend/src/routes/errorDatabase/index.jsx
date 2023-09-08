@@ -14,6 +14,7 @@ import {
   faRotate,
   faRotateRight,
   faStop,
+  faCaretDown,
 } from "@fortawesome/free-solid-svg-icons";
 import DatabaseConfig from "../../components/DatabaseConfig";
 import Dropdown from "../../components/Dropdown";
@@ -47,8 +48,15 @@ export default function ErrorDatabase() {
   });
   const [newColumns, setNewColumns] = useState([]);
   const sourceNameRef = useRef();
-  const targetNameRef = useRef();
+  const [sourceName, setSourceName] = useState("");
+  const [targetName, setTargetName] = useState("");
   const [logModal, setLogModal] = useState(false);
+  const [getColsLoad, setGetColsLoad] = useState(false);
+  const [selectedTable, setSelectedTable] = useState({
+    connection: {},
+    table: {},
+  });
+  const [fetchedCols, setFetchedCols] = useState([]);
 
   async function fetchDatabases() {
     await axios
@@ -133,17 +141,14 @@ export default function ErrorDatabase() {
 
   async function pushNewColumn() {
     async function add() {
-      if (
-        sourceNameRef.current.value.length === 0 ||
-        targetNameRef.current.value.length === 0
-      )
+      if (sourceName.length === 0 || targetName.length === 0)
         alert("Column names must not be empty!");
       else {
         setNewColumns((prev) => [
           ...prev,
           {
-            source: sourceNameRef.current.value,
-            target: targetNameRef.current.value,
+            source: sourceName,
+            target: targetName,
           },
         ]);
       }
@@ -151,8 +156,8 @@ export default function ErrorDatabase() {
 
     await add();
 
-    sourceNameRef.current.value = "";
-    targetNameRef.current.value = "";
+    setSourceName("");
+    setTargetName("");
 
     sourceNameRef.current.focus();
   }
@@ -348,15 +353,38 @@ export default function ErrorDatabase() {
     restart();
   }
 
+  function getColumns() {
+    async function get() {
+      setGetColsLoad(true);
+      const res = await axios
+        .post("/db/get-columns", selectedTable)
+        .then((res) => {
+          console.log(res.data);
+          return res.data.data;
+        })
+        .catch((err) => {
+          console.error("Error while fetching columns: ", err);
+          pushToast(false, "Error while getting columns!");
+          return null;
+        })
+        .finally(() => setGetColsLoad(false));
+
+      if (res) setFetchedCols(res);
+    }
+
+    get();
+  }
+
   return (
     <>
       <Modal
         show={columnsModal}
         setShow={setColumnsModal}
         header="Edit Columns"
+        className="enable-overflow"
       >
         <div>
-          <div className="tables-wrapper">
+          <div className="tables-wrapper enable-overflow">
             <table>
               <thead>
                 <tr>
@@ -389,21 +417,50 @@ export default function ErrorDatabase() {
                 <tr>
                   <td>#</td>
                   <td>
-                    <input
-                      ref={sourceNameRef}
-                      type="text"
-                      placeholder="Column name"
-                    />
+                    <div className="inline-flex">
+                      <input
+                        ref={sourceNameRef}
+                        type="text"
+                        placeholder="Column name"
+                        value={sourceName}
+                        onChange={(e) => setSourceName(e.target.value)}
+                      />
+                      <Dropdown icon={faCaretDown}>
+                        <ul className=" max-h-28 overflow-auto">
+                          {fetchedCols.map((col, i) => (
+                            <li key={i}>
+                              <button onClick={() => setSourceName(col.source)}>
+                                {col.source}
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      </Dropdown>
+                    </div>
                   </td>
                   <td>
-                    <input
-                      ref={targetNameRef}
-                      type="text"
-                      placeholder="Column name"
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") pushNewColumn();
-                      }}
-                    />
+                    <div className=" inline-flex">
+                      <input
+                        type="text"
+                        placeholder="Column name"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") pushNewColumn();
+                        }}
+                        value={targetName}
+                        onChange={(e) => setTargetName(e.target.value)}
+                      />
+                      <Dropdown icon={faCaretDown}>
+                        <ul className="max-h-28 overflow-auto">
+                          {fetchedCols.map((col, i) => (
+                            <li key={i}>
+                              <button onClick={() => setTargetName(col.target)}>
+                                {col.target}
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      </Dropdown>
+                    </div>
                   </td>
                   <td>
                     <button className="btn fluid green" onClick={pushNewColumn}>
@@ -416,8 +473,21 @@ export default function ErrorDatabase() {
           </div>
         </div>
         <div>
-          <button className="btn gray" onClick={() => setColumnsModal(false)}>
+          <button
+            className="btn gray"
+            onClick={() => {
+              setColumnsModal(false);
+              setSelectedTable({ connection: {}, table: {} });
+              setFetchedCols([]);
+            }}
+          >
             Cancel
+          </button>
+          <button className="btn yellow" onClick={getColumns}>
+            Get Cols
+            {getColsLoad && (
+              <FontAwesomeIcon icon={faCircleNotch} className="animate-spin" />
+            )}
           </button>
           <button className="btn green" onClick={editAndNewColumnsHandler}>
             Save
@@ -586,6 +656,7 @@ export default function ErrorDatabase() {
               addNewTable={addNewTable}
               setSelected={setSelected}
               delTables={delTables}
+              setSelectedTable={setSelectedTable}
             />
           ))
         ) : (

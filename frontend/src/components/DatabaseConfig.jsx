@@ -20,6 +20,7 @@ function DatabaseConfig({
   setSelected,
   delTables,
   delDatabaseHandler,
+  setSelectedTable,
 }) {
   const { pushToast } = useToast();
   const [delModal, setDelModal] = useState(false);
@@ -379,6 +380,13 @@ function DatabaseConfig({
                           setSelected({ dbIndex: index, tableIndex: i });
                           setNewColumns([...table.columns]);
                           setColumnsModal(true);
+                          setSelectedTable({
+                            connection: database.connection,
+                            table: {
+                              sourceTable: table.sourceTable,
+                              targetTable: table.targetTable,
+                            },
+                          });
                         }}
                       >
                         edit
@@ -489,7 +497,18 @@ function DatabaseConfig({
                       onClick={() => {
                         setNewColumns(newTable.columns);
                         setColumnsModal(true);
+                        setSelectedTable({
+                          connection: database.connection,
+                          table: {
+                            sourceTable: newTable.sourceTable,
+                            targetTable: newTable.targetTable,
+                          },
+                        });
                       }}
+                      disabled={
+                        newTable.sourceTable.length === 0 ||
+                        newTable.targetTable.length === 0
+                      }
                     >
                       edit
                     </button>
@@ -544,6 +563,7 @@ DatabaseConfig.propTypes = {
   setSelected: PropTypes.func.isRequired,
   delTables: PropTypes.func.isRequired,
   delDatabaseHandler: PropTypes.func.isRequired,
+  setSelectedTable: PropTypes.func.isRequired,
 };
 
 export default DatabaseConfig;

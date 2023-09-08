@@ -104,12 +104,16 @@
     @apply w-1/5 capitalize;
 }
 
-.connection-input-wrapper > input {
+.connection-input-wrapper > input, .connection-input-wrapper > select {
     @apply bg-slate-200 px-3 py-1.5 rounded w-4/5 ml-auto;
 }
 
 .tables-wrapper {
     @apply relative overflow-x-auto rounded;
+}
+
+.tables-wrapper.enable-overflow {
+    @apply overflow-visible;
 }
 
 .tables-wrapper table {
@@ -137,7 +141,7 @@
 }
 
 .modal-container {
-    @apply fixed top-0 left-0 w-screen h-screen bg-black/50 z-50 justify-center items-center hidden;
+    @apply fixed top-0 left-0 w-screen h-screen bg-black/50 z-30 justify-center items-center hidden;
 }
 
 .modal-container.show {
@@ -146,6 +150,10 @@
 
 .modal-card {
     @apply bg-white rounded-xl border min-w-[16rem] overflow-hidden max-w-full max-h-full;
+}
+
+.modal-card.enable-overflow {
+    @apply overflow-visible;
 }
 
 .modal-body > div:nth-child(1) {
@@ -161,7 +169,15 @@
 }
 
 .dropdown-container > .dropdown-list {
-    @apply absolute top-8 right-0 bg-white z-40 rounded-md border drop-shadow-md hidden overflow-hidden;
+    @apply absolute  bg-white z-40 rounded-md border drop-shadow-md hidden overflow-hidden;
+}
+
+.dropdown-list.down {
+    @apply top-8 right-0
+}
+
+.dropdown-list.top {
+    @apply bottom-0 right-8
 }
 
 .dropdown-container > .dropdown-list.show {

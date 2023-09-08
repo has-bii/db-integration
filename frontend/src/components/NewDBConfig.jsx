@@ -4,6 +4,7 @@ import axios from "../../lib/axios";
 import { useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleNotch } from "@fortawesome/free-solid-svg-icons";
+import { useToast } from "./ToastProvider";
 
 function NewDBConfig({
   showNewDB,
@@ -16,12 +17,13 @@ function NewDBConfig({
   newDB,
   setNewDB,
   setDatabases,
+  setSelectedTable,
 }) {
+  const { pushToast } = useToast();
   const [editColumnsModal, setEditColumnsModal] = useState(false);
   const editColsSourceRef = useRef();
   const editColsTargetRef = useRef();
   const [selected, setSelected] = useState({ tableIndex: "" });
-
   const [loadingSource, setLoadingSource] = useState(false);
   const [loadingTarget, setLoadingTarget] = useState(false);
   const [errorSource, setErrorSource] = useState(false);
@@ -36,12 +38,12 @@ function NewDBConfig({
           connection: JSON.stringify(connection),
         })
         .then((res) => {
-          console.log(res.data);
+          pushToast(true, res.data.message);
           setError(false);
           return res.data;
         })
         .catch((err) => {
-          console.error(err);
+          pushToast(false, "Failed to connect!");
           setError(true);
           return null;
         })
@@ -361,13 +363,12 @@ function NewDBConfig({
               </div>
               <div className="connection-input-wrapper">
                 <label htmlFor="source-dialect">Dialect</label>
-                <input
-                  id="source-dialect"
-                  type="text"
-                  placeholder="Dialect"
-                  value={newDB.connection.source.dialect}
-                  readOnly
-                />
+                <select
+                  defaultValue={newDB.connection.source.dialect}
+                  className=""
+                >
+                  <option value="oracle">oracle</option>
+                </select>
               </div>
               <div className="btn-container">
                 <button
@@ -388,7 +389,7 @@ function NewDBConfig({
                     newDB.connection.source.port.length === 0
                   }
                 >
-                  test
+                  test connection
                   {loadingSource && (
                     <FontAwesomeIcon
                       icon={faCircleNotch}
@@ -513,14 +514,13 @@ function NewDBConfig({
                 />
               </div>
               <div className="connection-input-wrapper">
-                <label htmlFor="target-dialect">Dialect</label>
-                <input
-                  id="target-dialect"
-                  type="text"
-                  placeholder="Dialect"
-                  value={newDB.connection.target.dialect}
-                  readOnly
-                />
+                <label>Dialect</label>
+                <select
+                  defaultValue={newDB.connection.target.dialect}
+                  className=""
+                >
+                  <option value="postgres">postgres</option>
+                </select>
               </div>
               <div className="btn-container">
                 <button
@@ -541,7 +541,7 @@ function NewDBConfig({
                     newDB.connection.target.port.length === 0
                   }
                 >
-                  test
+                  test connection
                   {loadingTarget && (
                     <FontAwesomeIcon
                       icon={faCircleNotch}
@@ -769,7 +769,18 @@ function NewDBConfig({
                       onClick={() => {
                         setNewColumns(newTableDB.columns);
                         setColumnsModal(true);
+                        setSelectedTable({
+                          connection: newDB.connection,
+                          table: {
+                            sourceTable: newTableDB.sourceTable,
+                            targetTable: newTableDB.targetTable,
+                          },
+                        });
                       }}
+                      disabled={
+                        newTableDB.sourceTable.length === 0 ||
+                        newTableDB.targetTable.length === 0
+                      }
                     >
                       edit
                     </button>
@@ -838,6 +849,7 @@ NewDBConfig.propTypes = {
   newDB: PropTypes.object.isRequired,
   setNewDB: PropTypes.func.isRequired,
   setDatabases: PropTypes.func.isRequired,
+  setSelectedTable: PropTypes.func.isRequired,
 };
 
 export default NewDBConfig;

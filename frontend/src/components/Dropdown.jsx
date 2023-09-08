@@ -2,7 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
 
-export default function Dropdown({ children }) {
+export default function Dropdown({
+  children,
+  icon = faEllipsisVertical,
+  position = "down",
+}) {
   const [show, setShow] = useState(false);
   const dropdownRef = useRef();
 
@@ -26,10 +30,12 @@ export default function Dropdown({ children }) {
   return (
     <div className="dropdown-container" ref={dropdownRef}>
       <button className="appearance-none" onClick={() => setShow(!show)}>
-        <FontAwesomeIcon icon={faEllipsisVertical} size="lg" />
+        <FontAwesomeIcon icon={icon} size="lg" />
       </button>
 
-      <div className={`dropdown-list ${show ? "show" : ""}`}>{children}</div>
+      <div className={`dropdown-list ${position} ${show ? "show" : ""}`}>
+        {children}
+      </div>
     </div>
   );
 }
