@@ -364,7 +364,20 @@ function NewDBConfig({
               <div className="connection-input-wrapper">
                 <label htmlFor="source-dialect">Dialect</label>
                 <select
-                  defaultValue={newDB.connection.source.dialect}
+                  id="source-dialect"
+                  value={newDB.connection.source.dialect}
+                  onChange={(e) =>
+                    setNewDB({
+                      ...newDB,
+                      connection: {
+                        ...newDB.connection,
+                        source: {
+                          ...newDB.connection.source,
+                          dialect: e.target.value,
+                        },
+                      },
+                    })
+                  }
                   className=""
                 >
                   <option value="oracle">oracle</option>
@@ -516,8 +529,19 @@ function NewDBConfig({
               <div className="connection-input-wrapper">
                 <label>Dialect</label>
                 <select
-                  defaultValue={newDB.connection.target.dialect}
-                  className=""
+                  value={newDB.connection.target.dialect}
+                  onChange={(e) =>
+                    setNewDB({
+                      ...newDB,
+                      connection: {
+                        ...newDB.connection,
+                        target: {
+                          ...newDB.connection.target,
+                          dialect: e.target.value,
+                        },
+                      },
+                    })
+                  }
                 >
                   <option value="postgres">postgres</option>
                 </select>

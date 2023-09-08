@@ -115,6 +115,14 @@ export default function ErrorDatabase() {
     }
   }, [databases]);
 
+  useEffect(() => {
+    if (timeInterval.length !== 0) {
+      if (timeInterval > 59) setTimeInterval(59);
+
+      if (timeInterval <= 0) setTimeInterval(1);
+    }
+  }, [timeInterval]);
+
   function updateConnectionSourceHandler(e, i, property) {
     const updated = databases.map((database, index) => {
       if (i === index) {
