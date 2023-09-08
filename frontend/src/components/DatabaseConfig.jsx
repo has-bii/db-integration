@@ -161,13 +161,15 @@ function DatabaseConfig({
               </div>
               <div className="connection-input-wrapper">
                 <label htmlFor={"source-dialect-" + index}>Dialect</label>
-                <input
+                <select
                   id={"source-dialect-" + index}
-                  type="text"
-                  placeholder="Dialect"
-                  value="oracle"
-                  readOnly
-                />
+                  value={database.connection.source.dialect}
+                  onChange={(e) => {
+                    updateConnectionSourceHandler(e, index, "dialect");
+                  }}
+                >
+                  <option value="postgres">postgres</option>
+                </select>
               </div>
               <div className="btn-container">
                 <button
@@ -262,13 +264,15 @@ function DatabaseConfig({
               </div>
               <div className="connection-input-wrapper">
                 <label htmlFor={"target-dialect-" + index}>Dialect</label>
-                <input
+                <select
                   id={"target-dialect-" + index}
-                  type="text"
-                  placeholder="Dialect"
-                  value="postgres"
-                  readOnly
-                />
+                  value={database.connection.target.dialect}
+                  onChange={(e) => {
+                    updateConnectionTargetHandler(e, index, "dialect");
+                  }}
+                >
+                  <option value="postgres">postgres</option>
+                </select>
               </div>
               <div className="btn-container">
                 <button
