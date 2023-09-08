@@ -89,8 +89,6 @@ export default function Database() {
 
   useEffect(() => {
     fetchDatabases();
-
-    firstFetch.current = false;
   }, []);
 
   useEffect(() => {

@@ -64,8 +64,6 @@ export default function ErrorDatabase() {
 
   useEffect(() => {
     fetchDatabases();
-
-    firstFetch.current = false;
   }, []);
 
   useEffect(() => {
