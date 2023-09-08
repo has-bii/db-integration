@@ -81,7 +81,7 @@ export default function Database() {
     connection: {},
     table: {},
   });
-  const [fetchedCols, setFetchedCols] = useState([]);
+  const [fetchedCols, setFetchedCols] = useState({ source: [], target: [] });
 
   async function fetchDatabases() {
     await axios
@@ -132,7 +132,7 @@ export default function Database() {
     if (firstMount.current) firstMount.current = false;
     else {
       if (firstFetch.current) firstFetch.current = false;
-      else {
+      if (!loading) {
         if (myTimeout) clearTimeout(myTimeout);
 
         setMyTimeout(
@@ -452,10 +452,10 @@ export default function Database() {
                       />
                       <Dropdown icon={faCaretDown}>
                         <ul className=" max-h-28 overflow-auto">
-                          {fetchedCols.map((col, i) => (
+                          {fetchedCols.source.map((col, i) => (
                             <li key={i}>
-                              <button onClick={() => setSourceName(col.source)}>
-                                {col.source}
+                              <button onClick={() => setSourceName(col)}>
+                                {col}
                               </button>
                             </li>
                           ))}
@@ -476,10 +476,10 @@ export default function Database() {
                       />
                       <Dropdown icon={faCaretDown}>
                         <ul className="max-h-28 overflow-auto">
-                          {fetchedCols.map((col, i) => (
+                          {fetchedCols.target.map((col, i) => (
                             <li key={i}>
-                              <button onClick={() => setTargetName(col.target)}>
-                                {col.target}
+                              <button onClick={() => setTargetName(col)}>
+                                {col}
                               </button>
                             </li>
                           ))}
@@ -616,8 +616,8 @@ export default function Database() {
                 <li>
                   <button
                     onClick={() => {
-                      setDatabases([]);
                       setLoading(true);
+                      setDatabases([]);
                       fetchDatabases();
                     }}
                   >
