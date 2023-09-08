@@ -22,7 +22,8 @@ import { useToast } from "../../components/ToastProvider";
 
 export default function Database() {
   const { pushToast } = useToast();
-  const [firstMount, setFirstMount] = useState(false);
+  const firstMount = useRef(true);
+  const firstFetch = useRef(true);
   const [myTimeout, setMyTimeout] = useState(null);
   const [saving, setSaving] = useState(false);
   const [databases, setDatabases] = useState([]);
@@ -88,6 +89,8 @@ export default function Database() {
 
   useEffect(() => {
     fetchDatabases();
+
+    firstFetch.current = false;
   }, []);
 
   useEffect(() => {
@@ -120,16 +123,20 @@ export default function Database() {
   }, [timeInterval]);
 
   useEffect(() => {
-    if (firstMount) {
-      if (myTimeout) clearTimeout(myTimeout);
+    if (firstMount.current) firstMount.current = false;
+    else {
+      if (firstFetch.current) firstFetch.current = false;
+      else {
+        if (myTimeout) clearTimeout(myTimeout);
 
-      setMyTimeout(
-        setTimeout(() => {
-          saveConfigs();
-          setSaving(true);
-        }, 1000)
-      );
-    } else setFirstMount(true);
+        setMyTimeout(
+          setTimeout(() => {
+            saveConfigs();
+            setSaving(true);
+          }, 1000)
+        );
+      }
+    }
   }, [databases]);
 
   function updateConnectionSourceHandler(e, i, property) {
