@@ -1,10 +1,15 @@
 require("dotenv").config();
 const express = require("express");
+const http = require("http"); // Import the http module for WebSocket
+const WebSocket = require("ws"); // Import WebSocket library
 const app = express();
-const port = process.env.PORT;
 const cookieParser = require("cookie-parser");
 const apiRouter = require("./API");
 const cors = require("cors");
+const { readErrorJson } = require("./lib/ErrorHandler");
+const fs = require("fs");
+
+const port = process.env.PORT || 3000; // Define the port
 
 app.use(cookieParser());
 app.use(
@@ -20,6 +25,56 @@ app.use(express.urlencoded({ extended: true })); // for parsing application/x-ww
 // Mount the API router under a specific base URL
 app.use("/api", apiRouter);
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+// Create an HTTP server to attach WebSocket server to
+const server = http.createServer(app);
+
+// Create a WebSocket server
+const wss = new WebSocket.Server({ noServer: true });
+
+// Define the WebSocket route handler for '/api/get-notification'
+wss.on("connection", (ws) => {
+  ws.send(JSON.stringify({ status: "all", data: JSON.parse(readErrorJson()) }));
+
+  // Watch for changes to the error json
+  const FILE_PATH = process.env.ERROR_JSON_FILE || "error/error.json";
+  let timeout;
+  fs.watch(FILE_PATH, (eventType) => {
+    if (eventType === "change") {
+      clearTimeout(timeout);
+
+      timeout = setTimeout(() => {
+        // You can read the updated file here if needed
+        fs.readFile(FILE_PATH, "utf-8", (err, data) => {
+          if (err) {
+            console.error(`Error reading file: ${err}`);
+          } else {
+            const newErrorJson = JSON.parse(data);
+
+            if (newErrorJson.length !== 0) {
+              ws.send(
+                JSON.stringify({
+                  status: "new",
+                  data: newErrorJson.shift(),
+                })
+              );
+            } else {
+              ws.send(JSON.stringify({ status: "clear" }));
+            }
+          }
+        });
+      }, 1000);
+    }
+  });
+});
+
+// Attach the WebSocket server to the HTTP server
+server.on("upgrade", (request, socket, head) => {
+  wss.handleUpgrade(request, socket, head, (ws) => {
+    wss.emit("connection", ws, request);
+  });
+});
+
+// Start the HTTP server
+server.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });

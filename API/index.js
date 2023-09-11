@@ -10,6 +10,7 @@ const config = require("./config");
 const errorBackup = require("./errorBackup");
 const log = require("./log");
 const db = require("./db");
+const notification = require("./notification");
 
 // Mount your API route files on the router
 
@@ -26,5 +27,7 @@ router.use("/config", config);
 router.use("/log", log);
 
 router.use("/db", db);
+
+router.use("/notification", notification);
 
 module.exports = router;

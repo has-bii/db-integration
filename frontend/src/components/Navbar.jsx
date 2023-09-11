@@ -1,30 +1,68 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+  faBell,
   faCircleExclamation,
   faDatabase,
   faDungeon,
   faRightFromBracket,
 } from "@fortawesome/free-solid-svg-icons";
+import Dropdown from "./Dropdown";
+import convertDate from "../../lib/convertDate";
+import axios from "../../lib/axios";
 
 export default function Navbar() {
   const [cookies, setCookie, removeCookie] = useCookies(["access_token"]);
   const location = useLocation();
   const navigate = useNavigate();
+  const [ErrorJSON, setErrorJSON] = useState([]);
 
   const logoutHandler = () => {
     removeCookie("access_token");
     navigate("/login");
   };
 
+  useEffect(() => {
+    function connect() {
+      const ws = new WebSocket(
+        `${import.meta.env.VITE_API_URL.replace("http", "ws")}/get-notification`
+      );
+
+      // WebSocket event listeners
+
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+
+        if (data.status === "all")
+          // setErrorJSON(event.data.data);
+          setErrorJSON(data.data);
+
+        if (data.status === "new")
+          if (data.data) setErrorJSON((prev) => [data.data, ...prev]);
+      };
+    }
+
+    connect();
+  }, []);
+
+  function clearNotifications() {
+    async function clear() {
+      await axios.get("/notification/clear");
+
+      setErrorJSON([]);
+    }
+
+    clear();
+  }
+
   return (
-    <div className="bg-white drop-shadow-xl">
+    <div className="bg-white drop-shadow-xl relative z-20">
       <div className=" flex justify-center text-2xl font-extrabold border-b py-4 text-gray-700">
         BACKUP DB
       </div>
-      <ul className="flex flex-row gap-8 justify-center py-4 border-b navbar overflow-auto">
+      <ul className="flex flex-row gap-8 justify-center py-4 border-b navbar overflow-visible">
         <li>
           <Link className={location.pathname === "/" ? "active" : ""} to={"/"}>
             <FontAwesomeIcon icon={faDungeon} size="xl" />
@@ -48,6 +86,53 @@ export default function Navbar() {
             <FontAwesomeIcon icon={faCircleExclamation} size="xl" />
             <span className="hidden md:block">Error</span>
           </Link>
+        </li>
+        <li>
+          <div className="inline-flex gap-4 items-center">
+            <Dropdown
+              icon={faBell}
+              textButton="Notification"
+              iconSize="xl"
+              position="bottom middle"
+            >
+              <div className="inline-flex gap-4 border-b bg-slate-100 items-center px-4 w-full">
+                <h6 className="font-bold text-slate-500">Notifications</h6>
+                <button
+                  className="ml-auto capitalize py-1.5"
+                  onClick={clearNotifications}
+                >
+                  clear
+                </button>
+              </div>
+              <ul className="w-96 max-h-96 overflow-y-auto">
+                {ErrorJSON.length === 0 ? (
+                  <li>
+                    <div className="p-4 text-slate-400">
+                      There is no notification.
+                    </div>
+                  </li>
+                ) : (
+                  ErrorJSON.map((json, i) => (
+                    <li key={i}>
+                      <div className="px-4 py-2">
+                        <div className="inline-flex gap-2 items-center">
+                          <span className="text-sm text-slate-400">
+                            {convertDate(new Date(json.date))}
+                          </span>
+                        </div>
+                        <p>{json.message}</p>
+                      </div>
+                    </li>
+                  ))
+                )}
+              </ul>
+            </Dropdown>
+            {ErrorJSON.length > 0 && (
+              <div className="w-6 h-6 inline-flex justify-center items-center bg-red-500 rounded-full text-white text-xs">
+                <span>{ErrorJSON.length}</span>
+              </div>
+            )}
+          </div>
         </li>
         <li>
           <button

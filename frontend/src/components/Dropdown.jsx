@@ -6,6 +6,8 @@ export default function Dropdown({
   children,
   icon = faEllipsisVertical,
   position = "down",
+  textButton = "",
+  iconSize = "lg",
 }) {
   const [show, setShow] = useState(false);
   const dropdownRef = useRef();
@@ -30,7 +32,8 @@ export default function Dropdown({
   return (
     <div className="dropdown-container" ref={dropdownRef}>
       <button className="appearance-none" onClick={() => setShow(!show)}>
-        <FontAwesomeIcon icon={icon} size="lg" />
+        <FontAwesomeIcon icon={icon} size={iconSize} />{" "}
+        <span className="hidden md:block">{textButton}</span>
       </button>
 
       <div className={`dropdown-list ${position} ${show ? "show" : ""}`}>

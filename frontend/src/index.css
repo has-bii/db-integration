@@ -57,7 +57,7 @@
 }
 
 .database-container {
-    @apply bg-white rounded-lg p-6 flex flex-col gap-4 border drop-shadow-xl mb-8;
+    @apply bg-white rounded-lg p-6 flex flex-col gap-4 border drop-shadow-xl mb-8 z-0 relative;
 }
 
 .database-container.new {
@@ -178,6 +178,14 @@
 
 .dropdown-list.top {
     @apply bottom-0 right-8
+}
+
+.dropdown-list.bottom {
+    @apply top-10
+}
+
+.dropdown-list.middle {
+    @apply left-1/2 -translate-x-1/2
 }
 
 .dropdown-container > .dropdown-list.show {
