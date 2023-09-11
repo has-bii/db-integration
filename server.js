@@ -14,7 +14,7 @@ const port = process.env.PORT || 3000; // Define the port
 app.use(cookieParser());
 app.use(
   cors({
-    origin: [process.env.FE_URL, "http://localhost:5173"],
+    origin: process.env.FE_URL,
     credentials: true,
   })
 );
@@ -29,7 +29,13 @@ app.use("/api", apiRouter);
 const server = http.createServer(app);
 
 // Create a WebSocket server
-const wss = new WebSocket.Server({ noServer: true });
+const wss = new WebSocket.Server({
+  noServer: true,
+  cors: {
+    origin: process.env.FE_URL,
+    credentials: true,
+  },
+});
 
 // Define the WebSocket route handler for '/api/get-notification'
 wss.on("connection", (ws) => {
