@@ -27,7 +27,7 @@ export default function Navbar() {
   useEffect(() => {
     function connect() {
       const ws = new WebSocket(
-        `${import.meta.env.VITE_API_URL.replace("http", "ws")}/get-notification`
+        `${import.meta.env.VITE_API_URL.replace("http", "ws")}`
       );
 
       // WebSocket event listeners
