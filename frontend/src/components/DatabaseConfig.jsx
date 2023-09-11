@@ -50,7 +50,7 @@ function DatabaseConfig({
         .finally(() => setLoad(false));
 
       if (res) pushToast(res.ok, res.message);
-      else pushToast(false, "Failed to connect!");
+      else pushToast(false, `Failed to connect to ${connection.database}`);
     }
 
     check();

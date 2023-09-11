@@ -201,7 +201,7 @@
 }
 
 .dropdown-list>ul>li>button {
-    @apply inline-flex items-center w-full gap-2 capitalize px-4 py-2
+    @apply inline-flex items-center w-full gap-2 px-4 py-2
 }
 
 .toast-container {

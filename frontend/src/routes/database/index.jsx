@@ -23,8 +23,8 @@ import { useToast } from "../../components/ToastProvider";
 
 export default function Database() {
   const { pushToast } = useToast();
-  const firstMount = useRef(true);
-  const firstFetch = useRef(true);
+  const [firstMount, setFirstMount] = useState(true);
+  const [firstFetch, setFirstFetch] = useState(true);
   const [myTimeout, setMyTimeout] = useState(null);
   const [saving, setSaving] = useState(false);
   const [databases, setDatabases] = useState([]);
@@ -89,6 +89,7 @@ export default function Database() {
       .then((res) => {
         setDatabases(res.data.config);
         setLoading(false);
+        setF;
       })
       .catch((err) => {
         console.error("Error while fetching Database Configuration: ", err);
@@ -129,9 +130,11 @@ export default function Database() {
   }, [timeInterval]);
 
   useEffect(() => {
-    if (firstMount.current) firstMount.current = false;
-    else {
-      if (firstFetch.current) firstFetch.current = false;
+    if (firstMount) {
+      setFirstMount(false);
+      setFirstFetch(true);
+    } else {
+      if (!firstFetch) setFirstFetch(false);
       if (!loading) {
         if (myTimeout) clearTimeout(myTimeout);
 
@@ -450,17 +453,19 @@ export default function Database() {
                         value={sourceName}
                         onChange={(e) => setSourceName(e.target.value)}
                       />
-                      <Dropdown icon={faCaretDown}>
-                        <ul className="max-h-48 overflow-y-auto">
-                          {fetchedCols.source.map((col, i) => (
-                            <li key={i}>
-                              <button onClick={() => setSourceName(col)}>
-                                {col}
-                              </button>
-                            </li>
-                          ))}
-                        </ul>
-                      </Dropdown>
+                      {fetchedCols.source.length > 0 && (
+                        <Dropdown icon={faCaretDown}>
+                          <ul className="max-h-96 overflow-y-auto">
+                            {fetchedCols.source.map((col, i) => (
+                              <li key={i}>
+                                <button onClick={() => setSourceName(col)}>
+                                  {col}
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        </Dropdown>
+                      )}
                     </div>
                   </td>
                   <td>
@@ -474,17 +479,19 @@ export default function Database() {
                         value={targetName}
                         onChange={(e) => setTargetName(e.target.value)}
                       />
-                      <Dropdown icon={faCaretDown}>
-                        <ul className="max-h-48 overflow-y-auto">
-                          {fetchedCols.target.map((col, i) => (
-                            <li key={i}>
-                              <button onClick={() => setTargetName(col)}>
-                                {col}
-                              </button>
-                            </li>
-                          ))}
-                        </ul>
-                      </Dropdown>
+                      {fetchedCols.target.length > 0 && (
+                        <Dropdown icon={faCaretDown}>
+                          <ul className="max-h-96 overflow-y-auto">
+                            {fetchedCols.target.map((col, i) => (
+                              <li key={i}>
+                                <button onClick={() => setTargetName(col)}>
+                                  {col}
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        </Dropdown>
+                      )}
                     </div>
                   </td>
                   <td>

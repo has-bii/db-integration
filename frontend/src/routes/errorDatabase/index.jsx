@@ -433,17 +433,19 @@ export default function ErrorDatabase() {
                         value={sourceName}
                         onChange={(e) => setSourceName(e.target.value)}
                       />
-                      <Dropdown icon={faCaretDown}>
-                        <ul className=" max-h-28 overflow-auto">
-                          {fetchedCols.source.map((col, i) => (
-                            <li key={i}>
-                              <button onClick={() => setSourceName(col)}>
-                                {col}
-                              </button>
-                            </li>
-                          ))}
-                        </ul>
-                      </Dropdown>
+                      {fetchedCols.source.length > 0 && (
+                        <Dropdown icon={faCaretDown}>
+                          <ul className="max-h-96 overflow-y-auto">
+                            {fetchedCols.source.map((col, i) => (
+                              <li key={i}>
+                                <button onClick={() => setSourceName(col)}>
+                                  {col}
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        </Dropdown>
+                      )}
                     </div>
                   </td>
                   <td>
@@ -457,17 +459,19 @@ export default function ErrorDatabase() {
                         value={targetName}
                         onChange={(e) => setTargetName(e.target.value)}
                       />
-                      <Dropdown icon={faCaretDown}>
-                        <ul className="max-h-28 overflow-auto">
-                          {fetchedCols.target.map((col, i) => (
-                            <li key={i}>
-                              <button onClick={() => setTargetName(col)}>
-                                {col}
-                              </button>
-                            </li>
-                          ))}
-                        </ul>
-                      </Dropdown>
+                      {fetchedCols.target.length > 0 && (
+                        <Dropdown icon={faCaretDown}>
+                          <ul className="max-h-96 overflow-y-auto">
+                            {fetchedCols.target.map((col, i) => (
+                              <li key={i}>
+                                <button onClick={() => setTargetName(col)}>
+                                  {col}
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        </Dropdown>
+                      )}
                     </div>
                   </td>
                   <td>

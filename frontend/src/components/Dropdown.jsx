@@ -11,11 +11,20 @@ export default function Dropdown({
 }) {
   const [show, setShow] = useState(false);
   const dropdownRef = useRef();
+  const dropdownListRef = useRef();
 
   useEffect(() => {
     // Function to handle clicks outside of the dropdown
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShow(false);
+      }
+
+      if (
+        dropdownListRef.current &&
+        dropdownListRef.current.contains(event.target)
+      ) {
+        event.target.click();
         setShow(false);
       }
     }
@@ -36,7 +45,10 @@ export default function Dropdown({
         <span className="hidden md:block">{textButton}</span>
       </button>
 
-      <div className={`dropdown-list ${position} ${show ? "show" : ""}`}>
+      <div
+        ref={dropdownListRef}
+        className={`dropdown-list ${position} ${show ? "show" : ""}`}
+      >
         {children}
       </div>
     </div>

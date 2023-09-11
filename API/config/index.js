@@ -52,7 +52,9 @@ router.post("/check-connection", async (req, res) => {
     .authenticate()
     .then(() => {
       connection.close();
-      res.status(200).json({ ok: true, message: "Connection ok." });
+      res
+        .status(200)
+        .json({ ok: true, message: `${config.database} connection ok` });
     })
     .catch((err) => {
       console.log("Error while checking connection: ", err);

@@ -29,11 +29,11 @@ const router = createBrowserRouter([
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <CookiesProvider defaultSetCookies={{ path: "/" }}>
-      <ToastProvider>
-        <RouterProvider router={router} />
-      </ToastProvider>
-    </CookiesProvider>
-  </React.StrictMode>
+  // <React.StrictMode>
+  <CookiesProvider defaultSetCookies={{ path: "/" }}>
+    <ToastProvider>
+      <RouterProvider router={router} />
+    </ToastProvider>
+  </CookiesProvider>
+  // </React.StrictMode>
 );
