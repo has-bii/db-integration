@@ -451,7 +451,7 @@ export default function Database() {
                         onChange={(e) => setSourceName(e.target.value)}
                       />
                       <Dropdown icon={faCaretDown}>
-                        <ul className=" max-h-28 overflow-auto">
+                        <ul className="max-h-48 overflow-y-auto">
                           {fetchedCols.source.map((col, i) => (
                             <li key={i}>
                               <button onClick={() => setSourceName(col)}>
@@ -475,7 +475,7 @@ export default function Database() {
                         onChange={(e) => setTargetName(e.target.value)}
                       />
                       <Dropdown icon={faCaretDown}>
-                        <ul className="max-h-28 overflow-auto">
+                        <ul className="max-h-48 overflow-y-auto">
                           {fetchedCols.target.map((col, i) => (
                             <li key={i}>
                               <button onClick={() => setTargetName(col)}>
