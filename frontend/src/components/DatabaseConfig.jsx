@@ -168,7 +168,7 @@ function DatabaseConfig({
                     updateConnectionSourceHandler(e, index, "dialect");
                   }}
                 >
-                  <option value="postgres">postgres</option>
+                  <option value="oracle">oracle</option>
                 </select>
               </div>
               <div className="btn-container">
