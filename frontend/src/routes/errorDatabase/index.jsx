@@ -424,7 +424,7 @@ export default function ErrorDatabase() {
                       />
                       {fetchedCols.source.length > 0 && (
                         <Dropdown icon={faCaretDown}>
-                          <ul className="max-h-96 overflow-y-auto">
+                          <ul className="max-h-56 overflow-y-auto">
                             {fetchedCols.source.map((col, i) => (
                               <li key={i}>
                                 <button onClick={() => setSourceName(col)}>
@@ -450,7 +450,7 @@ export default function ErrorDatabase() {
                       />
                       {fetchedCols.target.length > 0 && (
                         <Dropdown icon={faCaretDown}>
-                          <ul className="max-h-96 overflow-y-auto">
+                          <ul className="max-h-56 overflow-y-auto">
                             {fetchedCols.target.map((col, i) => (
                               <li key={i}>
                                 <button onClick={() => setTargetName(col)}>

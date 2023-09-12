@@ -441,7 +441,7 @@ export default function Database() {
                       />
                       {fetchedCols.source.length > 0 && (
                         <Dropdown icon={faCaretDown} closeOnClick={true}>
-                          <ul className="max-h-96 overflow-y-auto">
+                          <ul className=" max-h-56 overflow-y-auto">
                             {fetchedCols.source.map((col, i) => (
                               <li key={i}>
                                 <button onClick={() => setSourceName(col)}>
@@ -467,7 +467,7 @@ export default function Database() {
                       />
                       {fetchedCols.target.length > 0 && (
                         <Dropdown icon={faCaretDown} closeOnClick={true}>
-                          <ul className="max-h-96 overflow-y-auto">
+                          <ul className=" max-h-56 overflow-y-auto">
                             {fetchedCols.target.map((col, i) => (
                               <li key={i}>
                                 <button onClick={() => setTargetName(col)}>
