@@ -366,7 +366,7 @@ export default function ErrorDatabase() {
   return (
     <>
       <button
-        className="w-20 h-20 inline-flex justify-center items-center fixed bottom-6 right-10 rounded-full bg-black text-white"
+        className="w-20 h-20 inline-flex justify-center z-4 items-center fixed bottom-6 right-8 rounded-full bg-black text-white"
         onClick={() => {
           pushToast(true, "Saving...");
           saveConfigs();
