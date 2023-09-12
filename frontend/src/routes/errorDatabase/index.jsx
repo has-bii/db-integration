@@ -587,23 +587,23 @@ export default function ErrorDatabase() {
               </button>
             </div>
 
+            <button
+              className="btn black md"
+              onClick={() => {
+                pushToast(true, "Saving...");
+                saveConfigs();
+              }}
+            >
+              <FontAwesomeIcon icon={faFloppyDisk} />
+              Save
+            </button>
+
             <Dropdown>
               <ul>
                 <li>
                   <button onClick={() => setLogModal(true)}>
                     <FontAwesomeIcon icon={faCircleExclamation} />
                     Logs
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => {
-                      pushToast(true, "Saving...");
-                      saveConfigs();
-                    }}
-                  >
-                    <FontAwesomeIcon icon={faFloppyDisk} />
-                    Save
                   </button>
                 </li>
                 <li>

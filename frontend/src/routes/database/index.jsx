@@ -23,9 +23,6 @@ import { useToast } from "../../components/ToastProvider";
 
 export default function Database() {
   const { pushToast } = useToast();
-  const [firstMount, setFirstMount] = useState(true);
-  const [firstFetch, setFirstFetch] = useState(true);
-  const [myTimeout, setMyTimeout] = useState(null);
   const [saving, setSaving] = useState(false);
   const [databases, setDatabases] = useState([]);
   const [columnsModal, setColumnsModal] = useState(false);
@@ -127,23 +124,6 @@ export default function Database() {
       if (timeInterval <= 0) setTimeInterval(1);
     }
   }, [timeInterval]);
-
-  useEffect(() => {
-    if (firstMount) {
-      setFirstMount(false);
-    } else if (firstFetch) {
-      setFirstFetch(false);
-    } else if (!loading) {
-      if (myTimeout) clearTimeout(myTimeout);
-
-      setMyTimeout(
-        setTimeout(() => {
-          saveConfigs();
-          setSaving(true);
-        }, 1000)
-      );
-    }
-  }, [databases]);
 
   function updateConnectionSourceHandler(e, i, property) {
     const updated = databases.map((database, index) => {
@@ -580,23 +560,24 @@ export default function Database() {
                 onChange={(e) => setTimeInterval(e.target.value)}
               />
             </div>
+
+            <button
+              className="btn black md"
+              onClick={() => {
+                pushToast(true, "Saving...");
+                saveConfigs();
+              }}
+            >
+              <FontAwesomeIcon icon={faFloppyDisk} />
+              Save
+            </button>
+
             <Dropdown>
               <ul>
                 <li>
                   <button onClick={() => setShowNewDB(true)}>
                     <FontAwesomeIcon icon={faPlus} />
                     Add
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => {
-                      pushToast(true, "Saving...");
-                      saveConfigs();
-                    }}
-                  >
-                    <FontAwesomeIcon icon={faFloppyDisk} />
-                    Save
                   </button>
                 </li>
                 <li>
