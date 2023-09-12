@@ -382,6 +382,15 @@ export default function Database() {
 
   return (
     <>
+      <button
+        className="w-20 h-20 inline-flex justify-center items-center fixed bottom-6 right-6 rounded-full bg-black text-white"
+        onClick={() => {
+          pushToast(true, "Saving...");
+          saveConfigs();
+        }}
+      >
+        <FontAwesomeIcon icon={faFloppyDisk} size="2xl" />
+      </button>
       <Modal
         show={columnsModal}
         setShow={setColumnsModal}
@@ -560,17 +569,6 @@ export default function Database() {
                 onChange={(e) => setTimeInterval(e.target.value)}
               />
             </div>
-
-            <button
-              className="btn black md"
-              onClick={() => {
-                pushToast(true, "Saving...");
-                saveConfigs();
-              }}
-            >
-              <FontAwesomeIcon icon={faFloppyDisk} />
-              Save
-            </button>
 
             <Dropdown>
               <ul>
