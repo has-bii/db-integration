@@ -23,8 +23,8 @@ import LogError from "../../components/LogError";
 
 export default function ErrorDatabase() {
   const { pushToast } = useToast();
-  const firstMount = useRef(true);
-  const firstFetch = useRef(true);
+  const [firstMount, setFirstMount] = useState(true);
+  const [firstFetch, setFirstFetch] = useState(true);
   const [myTimeout, setMyTimeout] = useState(null);
   const [saving, setSaving] = useState(false);
   const [databases, setDatabases] = useState([]);
@@ -99,19 +99,19 @@ export default function ErrorDatabase() {
   }, []);
 
   useEffect(() => {
-    if (firstMount.current) firstMount.current = false;
-    else {
-      if (firstFetch.current) firstFetch.current = false;
-      if (!loading) {
-        if (myTimeout) clearTimeout(myTimeout);
+    if (firstMount) {
+      setFirstMount(false);
+    } else if (firstFetch) {
+      setFirstFetch(false);
+    } else if (!loading) {
+      if (myTimeout) clearTimeout(myTimeout);
 
-        setMyTimeout(
-          setTimeout(() => {
-            saveConfigs();
-            setSaving(true);
-          }, 1000)
-        );
-      }
+      setMyTimeout(
+        setTimeout(() => {
+          saveConfigs();
+          setSaving(true);
+        }, 1000)
+      );
     }
   }, [databases]);
 

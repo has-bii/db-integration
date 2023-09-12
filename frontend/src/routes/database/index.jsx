@@ -89,7 +89,6 @@ export default function Database() {
       .then((res) => {
         setDatabases(res.data.config);
         setLoading(false);
-        setF;
       })
       .catch((err) => {
         console.error("Error while fetching Database Configuration: ", err);
@@ -132,19 +131,17 @@ export default function Database() {
   useEffect(() => {
     if (firstMount) {
       setFirstMount(false);
-      setFirstFetch(true);
-    } else {
-      if (!firstFetch) setFirstFetch(false);
-      if (!loading) {
-        if (myTimeout) clearTimeout(myTimeout);
+    } else if (firstFetch) {
+      setFirstFetch(false);
+    } else if (!loading) {
+      if (myTimeout) clearTimeout(myTimeout);
 
-        setMyTimeout(
-          setTimeout(() => {
-            saveConfigs();
-            setSaving(true);
-          }, 1000)
-        );
-      }
+      setMyTimeout(
+        setTimeout(() => {
+          saveConfigs();
+          setSaving(true);
+        }, 1000)
+      );
     }
   }, [databases]);
 
