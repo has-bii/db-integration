@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
+import PropTypes from "prop-types";
 
-export default function Dropdown({
+function Dropdown({
   children,
   icon = faEllipsisVertical,
   position = "down",
   textButton = "",
   iconSize = "lg",
+  closeOnClick = false,
 }) {
   const [show, setShow] = useState(false);
   const dropdownRef = useRef();
@@ -22,7 +24,8 @@ export default function Dropdown({
 
       if (
         dropdownListRef.current &&
-        dropdownListRef.current.contains(event.target)
+        dropdownListRef.current.contains(event.target) &&
+        closeOnClick
       ) {
         event.target.click();
         setShow(false);
@@ -54,3 +57,13 @@ export default function Dropdown({
     </div>
   );
 }
+
+Dropdown.propTypes = {
+  icon: PropTypes.any,
+  position: PropTypes.string,
+  textButton: PropTypes.string,
+  iconSize: PropTypes.string,
+  closeOnClick: PropTypes.bool,
+};
+
+export default Dropdown;
