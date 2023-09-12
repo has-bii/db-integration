@@ -451,7 +451,7 @@ export default function Database() {
                         onChange={(e) => setSourceName(e.target.value)}
                       />
                       {fetchedCols.source.length > 0 && (
-                        <Dropdown icon={faCaretDown}>
+                        <Dropdown icon={faCaretDown} closeOnClick={true}>
                           <ul className="max-h-96 overflow-y-auto">
                             {fetchedCols.source.map((col, i) => (
                               <li key={i}>
@@ -477,7 +477,7 @@ export default function Database() {
                         onChange={(e) => setTargetName(e.target.value)}
                       />
                       {fetchedCols.target.length > 0 && (
-                        <Dropdown icon={faCaretDown}>
+                        <Dropdown icon={faCaretDown} closeOnClick={true}>
                           <ul className="max-h-96 overflow-y-auto">
                             {fetchedCols.target.map((col, i) => (
                               <li key={i}>
