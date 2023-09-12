@@ -64,13 +64,7 @@ wss.on("connection", (ws) => {
               ws.send(
                 JSON.stringify({
                   status: "new",
-                  data: newErrorJson.shift(),
-                })
-              );
-            } else if (ErrorJSON.length === newErrorJson.length) {
-              ws.send(
-                JSON.stringify({
-                  status: "read",
+                  data: newErrorJson,
                 })
               );
             }
@@ -78,7 +72,7 @@ wss.on("connection", (ws) => {
             ErrorJSON = [...newErrorJson];
           }
         });
-      }, 2000);
+      }, 1000);
     }
   });
 });

@@ -36,12 +36,9 @@ export default function Navbar() {
       ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
 
-        if (data.status === "all")
-          // setErrorJSON(event.data.data);
-          setErrorJSON(data.data);
+        if (data.status === "all") setErrorJSON(data.data);
 
-        if (data.status === "new")
-          if (data.data) setErrorJSON((prev) => [data.data, ...prev]);
+        if (data.status === "new") if (data.data) setErrorJSON(data.data);
       };
     }
 
