@@ -39,7 +39,9 @@ const wss = new WebSocket.Server({
 
 // Define the WebSocket route handler for '/api/get-notification'
 wss.on("connection", (ws) => {
-  ws.send(JSON.stringify({ status: "all", data: JSON.parse(readErrorJson()) }));
+  let ErrorJSON = JSON.parse(readErrorJson());
+
+  ws.send(JSON.stringify({ status: "all", data: ErrorJSON }));
 
   // Watch for changes to the error json
   const FILE_PATH = process.env.ERROR_JSON_FILE || "error/error.json";
@@ -56,19 +58,27 @@ wss.on("connection", (ws) => {
           } else {
             const newErrorJson = JSON.parse(data);
 
-            if (newErrorJson.length !== 0) {
+            if (newErrorJson.length === 0) {
+              ws.send(JSON.stringify({ status: "clear" }));
+            } else if (ErrorJSON.length !== newErrorJson.length) {
               ws.send(
                 JSON.stringify({
                   status: "new",
                   data: newErrorJson.shift(),
                 })
               );
-            } else {
-              ws.send(JSON.stringify({ status: "clear" }));
+            } else if (ErrorJSON.length === newErrorJson.length) {
+              ws.send(
+                JSON.stringify({
+                  status: "read",
+                })
+              );
             }
+
+            ErrorJSON = [...newErrorJson];
           }
         });
-      }, 1000);
+      }, 2000);
     }
   });
 });
