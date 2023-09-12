@@ -23,9 +23,6 @@ import LogError from "../../components/LogError";
 
 export default function ErrorDatabase() {
   const { pushToast } = useToast();
-  const [firstMount, setFirstMount] = useState(true);
-  const [firstFetch, setFirstFetch] = useState(true);
-  const [myTimeout, setMyTimeout] = useState(null);
   const [saving, setSaving] = useState(false);
   const [databases, setDatabases] = useState([]);
   const [columnsModal, setColumnsModal] = useState(false);
@@ -97,23 +94,6 @@ export default function ErrorDatabase() {
 
     fetchBackup();
   }, []);
-
-  useEffect(() => {
-    if (firstMount) {
-      setFirstMount(false);
-    } else if (firstFetch) {
-      setFirstFetch(false);
-    } else if (!loading) {
-      if (myTimeout) clearTimeout(myTimeout);
-
-      setMyTimeout(
-        setTimeout(() => {
-          saveConfigs();
-          setSaving(true);
-        }, 1000)
-      );
-    }
-  }, [databases]);
 
   useEffect(() => {
     if (timeInterval.length !== 0) {
