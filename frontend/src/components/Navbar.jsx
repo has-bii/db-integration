@@ -18,6 +18,7 @@ export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const [ErrorJSON, setErrorJSON] = useState([]);
+  const [readErrorJSON, setReadErrorJSON] = useState(0);
 
   const logoutHandler = () => {
     removeCookie("access_token");
@@ -47,6 +48,10 @@ export default function Navbar() {
     connect();
   }, []);
 
+  useEffect(() => {
+    setReadErrorJSON(ErrorJSON.filter((err) => !err.isRead).length);
+  }, [ErrorJSON]);
+
   function clearNotifications() {
     async function clear() {
       await axios.get("/notification/clear");
@@ -55,6 +60,21 @@ export default function Navbar() {
     }
 
     clear();
+  }
+
+  function readNotifications() {
+    async function read() {
+      await axios.get("/notification/read");
+
+      setErrorJSON(
+        ErrorJSON.map((err) => {
+          err.isRead = true;
+          return err;
+        })
+      );
+    }
+
+    read();
   }
 
   return (
@@ -97,8 +117,11 @@ export default function Navbar() {
             >
               <div className="inline-flex gap-4 border-b bg-slate-100 items-center px-4 w-full">
                 <h6 className="font-bold text-slate-500">Notifications</h6>
+                <button className="ml-auto py-1.5" onClick={readNotifications}>
+                  Mark as read
+                </button>
                 <button
-                  className="ml-auto capitalize py-1.5"
+                  className="capitalize py-1.5"
                   onClick={clearNotifications}
                 >
                   clear
@@ -119,6 +142,9 @@ export default function Navbar() {
                           <span className="text-sm text-slate-400">
                             {convertDate(new Date(json.date))}
                           </span>
+                          {!json.isRead && (
+                            <span className="w-3 h-3 bg-red-500 rounded-full"></span>
+                          )}
                         </div>
                         <p>{json.message}</p>
                       </div>
@@ -127,9 +153,9 @@ export default function Navbar() {
                 )}
               </ul>
             </Dropdown>
-            {ErrorJSON.length > 0 && (
+            {readErrorJSON > 0 && (
               <div className="w-6 h-6 inline-flex justify-center items-center bg-red-500 rounded-full text-white text-xs">
-                <span>{ErrorJSON.length}</span>
+                <span>{readErrorJSON}</span>
               </div>
             )}
           </div>
