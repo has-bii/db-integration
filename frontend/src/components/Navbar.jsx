@@ -77,7 +77,7 @@ export default function Navbar() {
   return (
     <div className="bg-white drop-shadow-xl relative z-20">
       <div className=" flex justify-center text-2xl font-extrabold border-b py-4 text-gray-700">
-        BACKUP DB
+        INTEGRATION DB
       </div>
       <ul className="flex flex-row gap-8 justify-center py-4 border-b navbar overflow-visible">
         <li>
