@@ -273,6 +273,7 @@ export default function Database() {
 
   function saveConfigs() {
     async function save() {
+      setSaving(true);
       const result = await axios
         .post("/config/update", { config: JSON.stringify(databases) })
         .then((res) => {
