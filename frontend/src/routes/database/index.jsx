@@ -264,6 +264,7 @@ export default function Database() {
 
     setNewColumns([]);
     setColumnsModal(false);
+    setFetchedCols({ source: [], target: [] });
   }
 
   function delDatabaseHandler(indexDB) {
@@ -364,7 +365,6 @@ export default function Database() {
       const res = await axios
         .post("/db/get-columns", selectedTable)
         .then((res) => {
-          console.log(res.data);
           return res.data.data;
         })
         .catch((err) => {
@@ -627,6 +627,10 @@ export default function Database() {
           setNewDB={setNewDB}
           setDatabases={setDatabases}
           setSelectedTable={setSelectedTable}
+          fetchedCols={fetchedCols}
+          setFetchedCols={setFetchedCols}
+          getColumns={getColumns}
+          getColsLoad={getColsLoad}
         />
 
         {/* Databases */}

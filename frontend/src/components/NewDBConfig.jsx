@@ -3,8 +3,9 @@ import Modal from "./Modal";
 import axios from "../../lib/axios";
 import { useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleNotch } from "@fortawesome/free-solid-svg-icons";
+import { faCaretDown, faCircleNotch } from "@fortawesome/free-solid-svg-icons";
 import { useToast } from "./ToastProvider";
+import Dropdown from "./Dropdown";
 
 function NewDBConfig({
   showNewDB,
@@ -18,6 +19,10 @@ function NewDBConfig({
   setNewDB,
   setDatabases,
   setSelectedTable,
+  fetchedCols,
+  setFetchedCols,
+  getColumns,
+  getColsLoad,
 }) {
   const { pushToast } = useToast();
   const [editColumnsModal, setEditColumnsModal] = useState(false);
@@ -164,9 +169,10 @@ function NewDBConfig({
         show={editColumnsModal}
         setShow={setEditColumnsModal}
         header="edit columns"
+        className="enable-overflow"
       >
         <div>
-          <div className="tables-wrapper">
+          <div className="tables-wrapper enable-overflow">
             <table>
               <thead>
                 <tr>
@@ -199,21 +205,59 @@ function NewDBConfig({
                 <tr>
                   <td>#</td>
                   <td>
-                    <input
-                      ref={editColsSourceRef}
-                      type="text"
-                      placeholder="Column name"
-                    />
+                    <div className="inline-flex">
+                      <input
+                        ref={editColsSourceRef}
+                        type="text"
+                        placeholder="Column name"
+                      />
+                      {fetchedCols.source.length > 0 && (
+                        <Dropdown icon={faCaretDown} closeOnClick={true}>
+                          <ul className="max-h-56 overflow-y-auto">
+                            {fetchedCols.source.map((col, i) => (
+                              <li key={i}>
+                                <button
+                                  onClick={() =>
+                                    (editColsSourceRef.current.value = col)
+                                  }
+                                >
+                                  {col}
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        </Dropdown>
+                      )}
+                    </div>
                   </td>
                   <td>
-                    <input
-                      ref={editColsTargetRef}
-                      type="text"
-                      placeholder="Column name"
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") pushNewColumn();
-                      }}
-                    />
+                    <div className=" inline-flex">
+                      <input
+                        ref={editColsTargetRef}
+                        type="text"
+                        placeholder="Column name"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") pushNewColumn();
+                        }}
+                      />
+                      {fetchedCols.target.length > 0 && (
+                        <Dropdown icon={faCaretDown} closeOnClick={true}>
+                          <ul className="max-h-56 overflow-y-auto">
+                            {fetchedCols.target.map((col, i) => (
+                              <li key={i}>
+                                <button
+                                  onClick={() =>
+                                    (editColsTargetRef.current.value = col)
+                                  }
+                                >
+                                  {col}
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        </Dropdown>
+                      )}
+                    </div>
                   </td>
                   <td>
                     <button className="btn fluid green" onClick={pushNewColumn}>
@@ -231,13 +275,23 @@ function NewDBConfig({
             onClick={() => {
               setEditColumnsModal(false);
               setSelected({ tableIndex: "" });
+              setFetchedCols({ source: [], target: [] });
             }}
           >
             Cancel
           </button>
+          <button className="btn yellow" onClick={getColumns}>
+            Get Cols
+            {getColsLoad && (
+              <FontAwesomeIcon icon={faCircleNotch} className="animate-spin" />
+            )}
+          </button>
           <button
             className="btn green"
-            onClick={() => saveEditColsHandler(selected.tableIndex)}
+            onClick={() => {
+              saveEditColsHandler(selected.tableIndex);
+              setFetchedCols({ source: [], target: [] });
+            }}
           >
             Save
           </button>
@@ -674,6 +728,13 @@ function NewDBConfig({
                           setSelected({ tableIndex: tableIndex });
                           setNewColumns(table.columns);
                           setEditColumnsModal(true);
+                          setSelectedTable({
+                            connection: newDB.connection,
+                            table: {
+                              sourceTable: table.sourceTable,
+                              targetTable: table.targetTable,
+                            },
+                          });
                         }}
                       >
                         edit
@@ -874,6 +935,10 @@ NewDBConfig.propTypes = {
   setNewDB: PropTypes.func.isRequired,
   setDatabases: PropTypes.func.isRequired,
   setSelectedTable: PropTypes.func.isRequired,
+  fetchedCols: PropTypes.object.isRequired,
+  setFetchedCols: PropTypes.func.isRequired,
+  getColumns: PropTypes.func.isRequired,
+  getColsLoad: PropTypes.bool.isRequired,
 };
 
 export default NewDBConfig;
