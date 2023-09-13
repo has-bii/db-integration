@@ -3,40 +3,80 @@ const router = express.Router();
 const { main } = require("../../app/app");
 
 let backup;
-let timestamp;
-let interval = process.env.TIME_INTERVAL;
-let status = false;
+let intervals = [];
 
 router.post("/start", (req, res) => {
-  if (!backup) {
-    if (req.body.timeInterval) interval = req.body.timeInterval;
+  if (req.body.intervals) {
+    let reqIntervals = req.body.intervals;
 
-    backup = main(interval);
+    reqIntervals = [
+      ...reqIntervals.map((reqInt) => {
+        if (reqInt.type === "hour") {
+          reqInt.value < 1
+            ? (reqInt.value = 1)
+            : reqInt.value > 24
+            ? (reqInt.value = 24)
+            : (reqInt.value = reqInt.value);
+        } else if (reqInt.type === "minute") {
+          reqInt.value < 1
+            ? (reqInt.value = 1)
+            : reqInt.value > 60
+            ? (reqInt.value = 60)
+            : (reqInt.value = reqInt.value);
+        }
 
-    timestamp = new Date();
+        return reqInt;
+      }),
+    ];
 
-    status = true;
+    if (intervals.length === 0) intervals.push(...reqIntervals);
+    else {
+      intervals.unshift(
+        ...reqIntervals.filter(
+          (reqInt) =>
+            !intervals.some(
+              (int) =>
+                JSON.stringify({ value: int.value, type: int.type }) ===
+                JSON.stringify({ value: reqInt.value, type: reqInt.type })
+            )
+        )
+      );
 
-    console.log(`\n\nMAIN BACKUP STARTED EVERY ${interval} MINS \n\n`);
+      intervals = [
+        ...intervals.filter((int) =>
+          reqIntervals.some(
+            (intt) =>
+              JSON.stringify({ value: int.value, type: int.type }) ===
+              JSON.stringify({
+                value: intt.value,
+                type: intt.type,
+              })
+          )
+        ),
+      ];
 
-    res
-      .status(200)
-      .json({ message: "Backup started", timestamp, interval, status });
-  } else {
-    res.status(200).json({
-      message: "Backup is already running",
-      timestamp,
-      interval,
-      status,
-    });
-  }
+      reqIntervals.forEach((reqInt, i) => {
+        if (reqInt.status) {
+          intervals[i].status = reqInt.status;
+        } else {
+          intervals[i].status = reqInt.status;
+        }
+      });
+    }
+
+    console.log("ReqIntervals: ", JSON.stringify(intervals, null, 2));
+
+    // backup = main(interval);
+
+    // console.log(`\n\nMAIN BACKUP STARTED EVERY ${interval} MINS \n\n`);
+
+    res.status(200).json({ message: "Backup started", intervals });
+  } else res.status(400).json({ message: "Intervals property is required!" });
 });
 
 router.get("/stop", (req, res) => {
   if (!backup) {
-    res
-      .status(200)
-      .json({ message: "Backup is not running", timestamp, status });
+    res.status(200).json({ message: "Backup is not running", timestamp });
   } else {
     backup.stop();
 
@@ -44,11 +84,9 @@ router.get("/stop", (req, res) => {
 
     timestamp = new Date();
 
-    status = false;
-
     console.log("\n\nMAIN BACKUP STOPPED\n\n");
 
-    res.status(200).json({ message: "Backup is stopped", timestamp, status });
+    res.status(200).json({ message: "Backup is stopped", timestamp });
   }
 });
 
@@ -61,28 +99,16 @@ router.post("/restart", (req, res) => {
 
   timestamp = new Date();
 
-  status = true;
-
   console.log(`\n\nMAIN BACKUP RESTARTED EVERY ${interval} MINS \n\n`);
 
-  res
-    .status(200)
-    .json({ message: "Backup restarted", timestamp, interval, status });
+  res.status(200).json({ message: "Backup restarted", timestamp, interval });
 });
 
 router.get("/isRunning", (req, res) => {
-  if (!backup) {
-    res.status(200).json({
-      message: "Backup is not running.",
-      timestamp,
-      status,
-      interval,
-    });
-  } else {
-    res
-      .status(200)
-      .json({ message: "Backup is running", timestamp, status, interval });
-  }
+  res.status(200).json({
+    message: "Backup is not running.",
+    intervals,
+  });
 });
 
 module.exports = router;

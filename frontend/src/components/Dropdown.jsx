@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
 import PropTypes from "prop-types";
@@ -6,10 +6,11 @@ import PropTypes from "prop-types";
 function Dropdown({
   children,
   icon = faEllipsisVertical,
-  position = "down",
+  position = "bottom left",
   textButton = "",
   iconSize = "lg",
   closeOnClick = false,
+  Button = null,
 }) {
   const [show, setShow] = useState(false);
   const dropdownRef = useRef();
@@ -43,10 +44,14 @@ function Dropdown({
 
   return (
     <div className="dropdown-container" ref={dropdownRef}>
-      <button className="appearance-none" onClick={() => setShow(!show)}>
-        <FontAwesomeIcon icon={icon} size={iconSize} />{" "}
-        <span className="hidden md:block">{textButton}</span>
-      </button>
+      {Button === null ? (
+        <button className="appearance-none" onClick={() => setShow(!show)}>
+          <FontAwesomeIcon icon={icon} size={iconSize} />{" "}
+          <span className="hidden md:block">{textButton}</span>
+        </button>
+      ) : (
+        React.cloneElement(Button, { onClick: () => setShow(!show) })
+      )}
 
       <div
         ref={dropdownListRef}
@@ -64,6 +69,7 @@ Dropdown.propTypes = {
   textButton: PropTypes.string,
   iconSize: PropTypes.string,
   closeOnClick: PropTypes.bool,
+  Button: PropTypes.element,
 };
 
 export default Dropdown;

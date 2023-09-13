@@ -15,6 +15,7 @@ import {
   faRotate,
   faRotateRight,
   faStop,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import DatabaseConfig from "../../components/DatabaseConfig";
 import NewDBConfig from "../../components/NewDBConfig";
@@ -27,10 +28,6 @@ export default function Database() {
   const [databases, setDatabases] = useState([]);
   const [columnsModal, setColumnsModal] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [loadStatus, setLoadStatus] = useState(true);
-  const [timestamp, setTimestamp] = useState(null);
-  const [timeInterval, setTimeInterval] = useState("");
-  const [status, setStatus] = useState(false);
   const [selected, setSelected] = useState({
     dbIndex: "",
     tableIndex: "",
@@ -79,6 +76,9 @@ export default function Database() {
     table: {},
   });
   const [fetchedCols, setFetchedCols] = useState({ source: [], target: [] });
+  const [typeInterval, setTypeInterval] = useState("minute");
+  const intervalValue = useRef();
+  const [intervals, setIntervals] = useState([]);
 
   async function fetchDatabases() {
     await axios
@@ -101,13 +101,7 @@ export default function Database() {
       await axios
         .get("/backup/isRunning")
         .then((res) => {
-          setStatus(res.data.status);
-
-          setTimestamp(res.data.timestamp);
-
-          setTimeInterval(res.data.interval);
-
-          setLoadStatus(false);
+          setIntervals(res.data.intervals);
         })
         .catch((err) => {
           console.error("Error while checking backup is running: ", err);
@@ -116,14 +110,6 @@ export default function Database() {
 
     fetchBackup();
   }, []);
-
-  useEffect(() => {
-    if (timeInterval.length !== 0) {
-      if (timeInterval > 59) setTimeInterval(59);
-
-      if (timeInterval <= 0) setTimeInterval(1);
-    }
-  }, [timeInterval]);
 
   function updateConnectionSourceHandler(e, i, property) {
     const updated = databases.map((database, index) => {
@@ -296,20 +282,15 @@ export default function Database() {
     async function start() {
       pushToast(true, "Starting backup...");
       const result = await axios
-        .post("/backup/start", { timeInterval })
+        .post("/backup/start", { intervals })
         .then((res) => {
-          setStatus(res.data.status);
-          setTimestamp(res.data.timestamp);
-          setTimeInterval(res.data.interval);
+          setIntervals(res.data.intervals);
           return res.data;
         })
         .catch((err) => {
           console.error("Error while starting main backup!\nError: ", err);
           return null;
         });
-
-      if (result) pushToast(result.status, result.message);
-      else pushToast(false, "Failed to start backup!");
     }
 
     start();
@@ -321,8 +302,6 @@ export default function Database() {
       const result = await axios
         .get("/backup/stop")
         .then((res) => {
-          setStatus(res.data.status);
-          setTimestamp(res.data.timestamp);
           return res.data;
         })
         .catch((err) => {
@@ -341,11 +320,8 @@ export default function Database() {
     async function restart() {
       pushToast(true, "Restarting backup...");
       const result = await axios
-        .post("/backup/restart", { timeInterval })
+        .post("/backup/restart")
         .then((res) => {
-          setStatus(res.data.status);
-          setTimestamp(res.data.timestamp);
-          setTimeInterval(res.data.interval);
           return res.data;
         })
         .catch((err) => {
@@ -379,6 +355,23 @@ export default function Database() {
     }
 
     get();
+  }
+
+  async function addIntervals(value, type) {
+    async function add() {
+      setIntervals((prev) => [
+        {
+          value,
+          type,
+          status: false,
+        },
+        ...prev,
+      ]);
+    }
+
+    await add();
+    console.log(intervals);
+    intervalValue.current.value = "";
   }
 
   return (
@@ -516,27 +509,7 @@ export default function Database() {
       <Layout>
         <div className="flex flex-col px-4 md:px-0 md:flex-row gap-4 lg:items-center mb-4">
           <div className="text-2xl font-bold text-slate-950">Databases</div>
-          {!loadStatus && (
-            <div className="flex gap-4">
-              <div
-                className={`px-3 py-1 rounded-md text-sm w-fit first-letter:uppercase border ${
-                  status
-                    ? "border-green-500 text-green-500"
-                    : "border-red-500 text-red-500"
-                }`}
-              >
-                {status ? "Running at" : "stopped at"}
-              </div>
-              {timestamp && (
-                <div className="inline-flex gap-2 items-center text-slate-400">
-                  <FontAwesomeIcon icon={faClock} />
-                  <span>
-                    {new Date(timestamp).toLocaleString().replaceAll("/", "-")}
-                  </span>
-                </div>
-              )}
-            </div>
-          )}
+
           <div className="flex flex-row gap-4 ml-auto items-center">
             <div className="inline-flex gap-2 items-center text-slate-400">
               {saving ? (
@@ -555,21 +528,82 @@ export default function Database() {
               )}
             </div>
 
-            <div className="inline-flex bg-white border rounded-md overflow-hidden">
-              <button
-                className="px-3 bg-black py-1 text-white capitalize border-r"
-                onClick={applyInterval}
-              >
-                apply
-              </button>
-              <input
-                type="number"
-                placeholder="Interval in 1-59 mins"
-                className="px-3 py-1 bg-transparent max-w-xs"
-                value={timeInterval}
-                onChange={(e) => setTimeInterval(e.target.value)}
-              />
-            </div>
+            <Dropdown
+              Button={
+                <button className="btn md black">
+                  <FontAwesomeIcon icon={faClock} size="sm" /> Interval
+                </button>
+              }
+            >
+              <div className="flex flex-col gap-4 p-4">
+                <div className="inline-flex rounded overflow-hidden border">
+                  <input
+                    ref={intervalValue}
+                    type="number"
+                    className="px-2 py-1 w-24"
+                    placeholder="Value"
+                  />
+                  <button
+                    className="px-2 py-1 bg-black text-white capitalize"
+                    onClick={() => {
+                      setTypeInterval(
+                        typeInterval !== "minute" ? "minute" : "hour"
+                      );
+                    }}
+                  >
+                    {typeInterval}
+                  </button>
+                  <button
+                    className="px-2 py-1 border-l border-white/50 bg-black text-white"
+                    onClick={() =>
+                      addIntervals(intervalValue.current.value, typeInterval)
+                    }
+                  >
+                    Add
+                  </button>
+                </div>
+
+                {intervals.map((int, i) => (
+                  <div key={i} className="inline-flex gap-2 items-center">
+                    <button
+                      className={`px-2 py-1 rounded ${
+                        int.status
+                          ? "bg-red-200 text-red-500"
+                          : "bg-green-200 text-green-500"
+                      }`}
+                      onClick={() =>
+                        setIntervals(
+                          intervals.map((intt, index) => {
+                            if (index === i) intt.status = !intt.status;
+                            return intt;
+                          })
+                        )
+                      }
+                    >
+                      {int.status ? "Stop" : "Run"}
+                    </button>
+                    <div className="inline-flex gap-2 justify-between bg-slate-200 text-slate-700 items-center rounded w-full px-2 py-1">
+                      <div>
+                        {int.value} {int.type}
+                      </div>
+                      <button
+                        onClick={() =>
+                          setIntervals(
+                            intervals.filter((intt, index) => index !== i)
+                          )
+                        }
+                      >
+                        <FontAwesomeIcon icon={faXmark} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+
+                <button className="btn md green" onClick={startBackup}>
+                  Apply
+                </button>
+              </div>
+            </Dropdown>
 
             <Dropdown>
               <ul>
