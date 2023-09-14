@@ -8,7 +8,7 @@ const main = (TIME_INTERVAL = process.env.TIME_INTERVAL, type = "minute") => {
     // Cronjob at after every n minute
     const cronjob = cron.schedule(`*/${TIME_INTERVAL} * * * *`, () => {
       console.log("Schedule: ", `${TIME_INTERVAL} => ${type}`);
-      mainBackup();
+      mainBackup(TIME_INTERVAL, type);
     });
 
     return cronjob;
@@ -16,7 +16,7 @@ const main = (TIME_INTERVAL = process.env.TIME_INTERVAL, type = "minute") => {
     // Cronjob At minute 0 past every nth hour
     const cronjob = cron.schedule(`0 */${TIME_INTERVAL} * * *`, () => {
       console.log("Schedule: ", `${TIME_INTERVAL} => ${type}`);
-      mainBackup();
+      mainBackup(TIME_INTERVAL, type);
     });
 
     return cronjob;
