@@ -551,6 +551,7 @@ export default function Database() {
       <Layout>
         <div className="flex flex-col px-4 md:px-0 md:flex-row gap-4 lg:items-center mb-4">
           <div className="text-2xl font-bold text-slate-950">Databases</div>
+
           <div className="flex flex-row gap-2 items-center">
             <span className="border border-black px-3 py-1 text-black rounded-md text-sm">
               Running intervals:{" "}
@@ -612,7 +613,7 @@ export default function Database() {
                       );
                     }}
                   >
-                    {typeInterval}
+                    {typeInterval}s
                   </button>
                   <button
                     className="px-2 py-1 border-l border-white/50 bg-black text-white"
@@ -629,8 +630,8 @@ export default function Database() {
                     <button
                       className={`px-2 py-1 rounded ${
                         int.status
-                          ? "bg-red-200 text-red-500"
-                          : "bg-green-200 text-green-500"
+                          ? "bg-green-200 text-green-500"
+                          : "bg-red-200 text-red-500"
                       }`}
                       onClick={() =>
                         setIntervals(
@@ -641,11 +642,11 @@ export default function Database() {
                         )
                       }
                     >
-                      {int.status ? "Stop" : "Run"}
+                      {int.status ? "Run" : "Stop"}
                     </button>
                     <div className="inline-flex gap-2 justify-between bg-slate-200 text-slate-700 items-center rounded w-full px-2 py-1">
                       <div>
-                        {int.value} {int.type}
+                        {int.value} {int.type}s
                       </div>
                       <button
                         onClick={() =>
