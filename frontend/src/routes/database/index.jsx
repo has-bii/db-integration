@@ -335,7 +335,7 @@ export default function Database() {
           return null;
         });
 
-      if (result) pushToast(result.status, result.message);
+      if (result) pushToast(true, "All tasks have been stopped");
       else pushToast(false, "Failed to stop all tasks!");
     }
 
