@@ -3,18 +3,26 @@ const mainBackup = require("../lib/mainBackup");
 const backupOnError = require("../lib/backupOnError");
 
 // Main
-const main = (TIME_INTERVAL = process.env.TIME_INTERVAL) => {
-  console.log(`Backup will be performed every ${TIME_INTERVAL} minutes\n`);
+const main = (TIME_INTERVAL = process.env.TIME_INTERVAL, type = "minute") => {
+  if (type === "minute") {
+    // Cronjob at after every n minute
+    const cronjob = cron.schedule(`*/${TIME_INTERVAL} * * * *`, () => {
+      console.log("Schedule: ", `${TIME_INTERVAL} => ${type}`);
+      mainBackup();
+    });
 
-  // Backup for the first time
-  mainBackup();
+    return cronjob;
+  } else if (type === "hour") {
+    // Cronjob At minute 0 past every nth hour
+    const cronjob = cron.schedule(`0 */${TIME_INTERVAL} * * *`, () => {
+      console.log("Schedule: ", `${TIME_INTERVAL} => ${type}`);
+      mainBackup();
+    });
 
-  // Cronjob every TIME_INTERVAL
-  const cronjob = cron.schedule(`*/${TIME_INTERVAL} * * * *`, () => {
-    mainBackup();
-  });
+    return cronjob;
+  }
 
-  return cronjob;
+  return null;
 };
 
 // Main

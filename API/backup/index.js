@@ -2,76 +2,66 @@ const express = require("express");
 const router = express.Router();
 const { main } = require("../../app/app");
 
-let backup;
-let intervals = [];
+const intervals = [];
 
 router.post("/start", (req, res) => {
-  if (req.body.intervals) {
-    let reqIntervals = req.body.intervals;
+  const reqIntervals = req.body.intervals;
 
-    reqIntervals = [
-      ...reqIntervals.map((reqInt) => {
-        if (reqInt.type === "hour") {
-          reqInt.value < 1
-            ? (reqInt.value = 1)
-            : reqInt.value > 24
-            ? (reqInt.value = 24)
-            : (reqInt.value = reqInt.value);
-        } else if (reqInt.type === "minute") {
-          reqInt.value < 1
-            ? (reqInt.value = 1)
-            : reqInt.value > 60
-            ? (reqInt.value = 60)
-            : (reqInt.value = reqInt.value);
-        }
+  if (!reqIntervals) {
+    return res.status(400).json({ message: "Intervals property is required!" });
+  }
 
-        return reqInt;
-      }),
-    ];
+  // Stop and clear existing cron jobs
+  intervals.forEach((interval) => {
+    if (interval.status === true && interval.cronJob) {
+      interval.cronJob.stop();
+      interval.cronJob = null;
+    }
+  });
 
-    if (intervals.length === 0) intervals.push(...reqIntervals);
-    else {
-      intervals.unshift(
-        ...reqIntervals.filter(
-          (reqInt) =>
-            !intervals.some(
-              (int) =>
-                JSON.stringify({ value: int.value, type: int.type }) ===
-                JSON.stringify({ value: reqInt.value, type: reqInt.type })
-            )
-        )
-      );
+  intervals.length = 0; // Clear the intervals array
 
-      intervals = [
-        ...intervals.filter((int) =>
-          reqIntervals.some(
-            (intt) =>
-              JSON.stringify({ value: int.value, type: int.type }) ===
-              JSON.stringify({
-                value: intt.value,
-                type: intt.type,
-              })
-          )
-        ),
-      ];
-
-      reqIntervals.forEach((reqInt, i) => {
-        if (reqInt.status) {
-          intervals[i].status = reqInt.status;
-        } else {
-          intervals[i].status = reqInt.status;
-        }
-      });
+  // Modify and add new intervals
+  reqIntervals.forEach((reqInt) => {
+    if (reqInt.type === "hour") {
+      reqInt.value = Math.max(1, Math.min(24, reqInt.value));
+    } else if (reqInt.type === "minute") {
+      reqInt.value = Math.max(1, Math.min(60, reqInt.value));
     }
 
-    console.log("ReqIntervals: ", JSON.stringify(intervals, null, 2));
+    reqInt.status = !!reqInt.status; // Ensure status is a boolean
+    intervals.push(reqInt);
+  });
 
-    // backup = main(interval);
+  // Remove deleted intervals
+  intervals.slice().forEach((int, index) => {
+    const exists = reqIntervals.some(
+      (reqInt) => reqInt.value === int.value && reqInt.type === int.type
+    );
 
-    // console.log(`\n\nMAIN BACKUP STARTED EVERY ${interval} MINS \n\n`);
+    if (!exists) {
+      intervals.splice(index, 1);
+      if (int.cronJob) {
+        int.cronJob.stop();
+      }
+    }
+  });
 
-    res.status(200).json({ message: "Backup started", intervals });
-  } else res.status(400).json({ message: "Intervals property is required!" });
+  // Start new cron jobs
+  intervals.forEach((int) => {
+    if (int.status === true) {
+      int.cronJob = main(int.value, int.type);
+    }
+  });
+
+  res.status(200).json({
+    message: "Backup started",
+    intervals: intervals.map((int) => ({
+      value: int.value,
+      type: int.type,
+      status: int.status,
+    })),
+  });
 });
 
 router.get("/stop", (req, res) => {
@@ -107,7 +97,9 @@ router.post("/restart", (req, res) => {
 router.get("/isRunning", (req, res) => {
   res.status(200).json({
     message: "Backup is not running.",
-    intervals,
+    intervals: intervals.map((int) => {
+      return { value: int.value, type: int.type, status: int.status };
+    }),
   });
 });
 

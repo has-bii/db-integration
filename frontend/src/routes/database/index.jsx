@@ -370,7 +370,6 @@ export default function Database() {
     }
 
     await add();
-    console.log(intervals);
     intervalValue.current.value = "";
   }
 
