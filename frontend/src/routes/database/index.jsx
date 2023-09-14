@@ -378,7 +378,23 @@ export default function Database() {
         })
         .finally(() => setGetColsLoad(false));
 
-      if (res) setFetchedCols(res);
+      if (res) {
+        if (res.source.length === 0) {
+          pushToast(
+            false,
+            `${selectedTable.table.sourceTable} table name does not exist!`
+          );
+        }
+
+        if (res.target.length === 0) {
+          pushToast(
+            false,
+            `${selectedTable.table.targetTable} table name does not exist!`
+          );
+        }
+
+        setFetchedCols(res);
+      }
     }
 
     get();
