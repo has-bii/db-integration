@@ -551,6 +551,25 @@ export default function Database() {
       <Layout>
         <div className="flex flex-col px-4 md:px-0 md:flex-row gap-4 lg:items-center mb-4">
           <div className="text-2xl font-bold text-slate-950">Databases</div>
+          <div className="flex flex-row gap-2 items-center">
+            <span className="border border-black px-3 py-1 text-black rounded-md text-sm">
+              Running intervals:{" "}
+            </span>
+            {intervals.filter((int) => int.status).length === 0 ? (
+              <span className="text-slate-400">No interval is running</span>
+            ) : (
+              intervals
+                .filter((int) => int.status)
+                .map((interval, i) => (
+                  <span
+                    key={i}
+                    className="bg-green-200 text-green-500 font-semibold text-sm px-3 py-1 rounded-md"
+                  >
+                    {interval.value} {interval.type}s
+                  </span>
+                ))
+            )}
+          </div>
 
           <div className="flex flex-row gap-4 ml-auto items-center">
             <div className="inline-flex gap-2 items-center text-slate-400">
