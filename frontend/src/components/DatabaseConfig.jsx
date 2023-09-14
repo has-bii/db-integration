@@ -1,10 +1,11 @@
 import PropTypes from "prop-types";
 import Modal from "./Modal";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import axios from "../../lib/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleNotch } from "@fortawesome/free-solid-svg-icons";
+import { faCircleNotch, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { useToast } from "./ToastProvider";
+import Dropdown from "./Dropdown";
 
 function DatabaseConfig({
   database,
@@ -21,6 +22,7 @@ function DatabaseConfig({
   delTables,
   delDatabaseHandler,
   setSelectedTable,
+  intervals,
 }) {
   const { pushToast } = useToast();
   const [delModal, setDelModal] = useState(false);
@@ -29,6 +31,7 @@ function DatabaseConfig({
   const [loadingTarget, setLoadingTarget] = useState(false);
   const [errorSource, setErrorSource] = useState(false);
   const [errorTarget, setErrorTarget] = useState(false);
+  const [selectedInterval, setSelectedInterval] = useState("");
 
   function checkConnection(connection, setLoad, setError) {
     async function check() {
@@ -300,7 +303,7 @@ function DatabaseConfig({
         </div>
         <div className="tables">
           <h4 className="heading">Tables</h4>
-          <div className="tables-wrapper">
+          <div className="tables-wrapper enable-overflow">
             <table>
               <thead>
                 <tr>
@@ -325,7 +328,12 @@ function DatabaseConfig({
                         type="text"
                         value={table.sourceTable}
                         onChange={(e) =>
-                          updateTableProperty(index, i, "sourceTable", e)
+                          updateTableProperty(
+                            index,
+                            i,
+                            "sourceTable",
+                            e.target.value
+                          )
                         }
                       />
                     </td>
@@ -334,7 +342,12 @@ function DatabaseConfig({
                         type="text"
                         value={table.targetTable}
                         onChange={(e) =>
-                          updateTableProperty(index, i, "targetTable", e)
+                          updateTableProperty(
+                            index,
+                            i,
+                            "targetTable",
+                            e.target.value
+                          )
                         }
                       />
                     </td>
@@ -342,7 +355,13 @@ function DatabaseConfig({
                       <select
                         value={table.filterByCol.source}
                         onChange={(e) =>
-                          updateTableProperty(index, i, "source", e, true)
+                          updateTableProperty(
+                            index,
+                            i,
+                            "source",
+                            e.target.value,
+                            true
+                          )
                         }
                       >
                         {table.columns.map((column, index) => (
@@ -356,7 +375,13 @@ function DatabaseConfig({
                       <select
                         value={table.filterByCol.target}
                         onChange={(e) =>
-                          updateTableProperty(index, i, "target", e, true)
+                          updateTableProperty(
+                            index,
+                            i,
+                            "target",
+                            e.target.value,
+                            true
+                          )
                         }
                       >
                         {table.columns.map((column, index) => (
@@ -370,7 +395,13 @@ function DatabaseConfig({
                       <select
                         value={table.filterByCol.type}
                         onChange={(e) =>
-                          updateTableProperty(index, i, "type", e, true)
+                          updateTableProperty(
+                            index,
+                            i,
+                            "type",
+                            e.target.value,
+                            true
+                          )
                         }
                       >
                         <option value="PRIMARYKEY">PRIMARYKEY</option>
@@ -397,12 +428,72 @@ function DatabaseConfig({
                       </button>
                     </td>
                     <td>
-                      <button
-                        className="btn fluid red"
-                        onClick={() => delTables(index, i)}
-                      >
-                        delete
-                      </button>
+                      <div className="inline-flex gap-4 items-center w-full">
+                        <button
+                          className="btn fluid red"
+                          onClick={() => delTables(index, i)}
+                        >
+                          delete
+                        </button>
+
+                        <Dropdown position="bottom left">
+                          <div className="flex flex-col gap-4 p-4 w-72">
+                            <div className="inline-flex gap-4 items-center w-full">
+                              <select
+                                className="px-2 py-1 w-full border rounded"
+                                value={selectedInterval}
+                                onChange={(e) =>
+                                  setSelectedInterval(e.target.value)
+                                }
+                              >
+                                <option value="">Add interval</option>
+                                {intervals.map((int, i) => (
+                                  <option key={i} value={i}>
+                                    {int.value + " " + int.type}
+                                  </option>
+                                ))}
+                              </select>
+                              <button
+                                className="btn md green"
+                                disabled={selectedInterval.length === 0}
+                                onClick={() => {
+                                  updateTableProperty(index, i, "intervals", [
+                                    ...table.intervals,
+                                    intervals[selectedInterval],
+                                  ]);
+                                  setSelectedInterval("");
+                                }}
+                              >
+                                add
+                              </button>
+                            </div>
+                            {table.intervals.map((interval, index) => (
+                              <div
+                                key={index}
+                                className="inline-flex px-2 py-1 rounded gap-4 font-semibold items-center w-full justify-between bg-slate-200 text-slate-500"
+                              >
+                                <span>
+                                  {interval.value} {interval.type}
+                                </span>
+                                <button
+                                  onClick={() => {
+                                    updateTableProperty(
+                                      index,
+                                      i,
+                                      "intervals",
+                                      table.intervals.filter(
+                                        (interval, ii) => ii !== index
+                                      )
+                                    );
+                                  }}
+                                >
+                                  <FontAwesomeIcon icon={faXmark} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </Dropdown>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -568,6 +659,7 @@ DatabaseConfig.propTypes = {
   delTables: PropTypes.func.isRequired,
   delDatabaseHandler: PropTypes.func.isRequired,
   setSelectedTable: PropTypes.func.isRequired,
+  intervals: PropTypes.array.isRequired,
 };
 
 export default DatabaseConfig;

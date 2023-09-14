@@ -188,6 +188,10 @@
     @apply right-0
 }
 
+.dropdown-list.right {
+    @apply left-0
+}
+
 .dropdown-list.middle {
     @apply left-1/2 -translate-x-1/2
 }

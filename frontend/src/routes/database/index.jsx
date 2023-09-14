@@ -198,7 +198,7 @@ export default function Database() {
     dbIndex,
     tableIndex,
     tableProperty,
-    e,
+    value,
     filteredCol = false
   ) {
     setDatabases(
@@ -207,8 +207,8 @@ export default function Database() {
           database.tables = database.tables.map((table, i) => {
             if (tableIndex === i) {
               if (filteredCol) {
-                table.filterByCol[tableProperty] = e.target.value;
-              } else table[tableProperty] = e.target.value;
+                table.filterByCol[tableProperty] = value;
+              } else table[tableProperty] = value;
 
               return table;
             } else return table;
@@ -695,6 +695,7 @@ export default function Database() {
               setSelected={setSelected}
               delTables={delTables}
               setSelectedTable={setSelectedTable}
+              intervals={intervals}
             />
           ))
         ) : (
