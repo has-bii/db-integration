@@ -22,7 +22,7 @@ function DatabaseConfig({
   delTables,
   delDatabaseHandler,
   setSelectedTable,
-  intervals,
+  intervals = null,
 }) {
   const { pushToast } = useToast();
   const [delModal, setDelModal] = useState(false);
@@ -436,63 +436,71 @@ function DatabaseConfig({
                           delete
                         </button>
 
-                        <Dropdown position="bottom left">
-                          <div className="flex flex-col gap-4 p-4 w-72">
-                            <div className="inline-flex gap-4 items-center w-full">
-                              <select
-                                className="px-2 py-1 w-full border rounded"
-                                value={selectedInterval}
-                                onChange={(e) =>
-                                  setSelectedInterval(e.target.value)
-                                }
-                              >
-                                <option value="">Add interval</option>
-                                {intervals.map((int, i) => (
-                                  <option key={i} value={i}>
-                                    {int.value + " " + int.type}
-                                  </option>
-                                ))}
-                              </select>
-                              <button
-                                className="btn md green"
-                                disabled={selectedInterval.length === 0}
-                                onClick={() => {
-                                  updateTableProperty(index, i, "intervals", [
-                                    ...table.intervals,
-                                    intervals[selectedInterval],
-                                  ]);
-                                  setSelectedInterval("");
-                                }}
-                              >
-                                add
-                              </button>
-                            </div>
-                            {table.intervals.map((interval, index) => (
-                              <div
-                                key={index}
-                                className="inline-flex px-2 py-1 rounded gap-4 font-semibold items-center w-full justify-between bg-slate-200 text-slate-500"
-                              >
-                                <span>
-                                  {interval.value} {interval.type}
-                                </span>
+                        {intervals !== null && (
+                          <Dropdown position="bottom left">
+                            <div className="flex flex-col gap-4 p-4 w-72">
+                              <div className="inline-flex gap-4 items-center w-full">
+                                <select
+                                  className="px-2 py-1 w-full border rounded"
+                                  value={selectedInterval}
+                                  onChange={(e) =>
+                                    setSelectedInterval(e.target.value)
+                                  }
+                                >
+                                  <option value="">Add interval</option>
+                                  {intervals.map((int, i) => (
+                                    <option key={i} value={i}>
+                                      {int.value + " " + int.type}
+                                    </option>
+                                  ))}
+                                </select>
                                 <button
+                                  className="btn md green"
+                                  disabled={selectedInterval.length === 0}
                                   onClick={() => {
-                                    updateTableProperty(
-                                      index,
-                                      i,
-                                      "intervals",
-                                      table.intervals.filter(
-                                        (interval, ii) => ii !== index
-                                      )
-                                    );
+                                    updateTableProperty(index, i, "intervals", [
+                                      ...table.intervals,
+                                      intervals[selectedInterval],
+                                    ]);
+                                    setSelectedInterval("");
                                   }}
                                 >
-                                  <FontAwesomeIcon icon={faXmark} />
+                                  add
                                 </button>
                               </div>
-                            ))}
-                          </div>
-                        </Dropdown>
+                              {table.intervals.length === 0 ? (
+                                <div className="mx-auto text-slate-400">
+                                  Runs all intervals
+                                </div>
+                              ) : (
+                                table.intervals.map((interval, index) => (
+                                  <div
+                                    key={index}
+                                    className="inline-flex px-2 py-1 rounded gap-4 font-semibold items-center w-full justify-between bg-slate-200 text-slate-500"
+                                  >
+                                    <span>
+                                      {interval.value} {interval.type}
+                                    </span>
+                                    <button
+                                      onClick={() => {
+                                        updateTableProperty(
+                                          index,
+                                          i,
+                                          "intervals",
+                                          table.intervals.filter(
+                                            (interval, ii) => ii !== index
+                                          )
+                                        );
+                                      }}
+                                    >
+                                      <FontAwesomeIcon icon={faXmark} />
+                                    </button>
+                                  </div>
+                                ))
+                              )}
+                            </div>
+                          </Dropdown>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -659,7 +667,7 @@ DatabaseConfig.propTypes = {
   delTables: PropTypes.func.isRequired,
   delDatabaseHandler: PropTypes.func.isRequired,
   setSelectedTable: PropTypes.func.isRequired,
-  intervals: PropTypes.array.isRequired,
+  intervals: PropTypes.array,
 };
 
 export default DatabaseConfig;

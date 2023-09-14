@@ -889,6 +889,7 @@ function NewDBConfig({
                         setNewTableDB({
                           sourceTable: "",
                           targetTable: "",
+                          intervals: [],
                           filterByCol: {
                             source: "",
                             target: "",

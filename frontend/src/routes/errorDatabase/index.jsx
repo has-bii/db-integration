@@ -41,6 +41,7 @@ export default function ErrorDatabase() {
     sourceTable: "",
     targetTable: "",
     filterByCol: { source: "", target: "", type: "PRIMARYKEY" },
+    intervals: [],
     columns: [],
   });
   const [newColumns, setNewColumns] = useState([]);
@@ -168,6 +169,7 @@ export default function ErrorDatabase() {
       sourceTable: "",
       targetTable: "",
       filterByCol: { source: "", target: "", type: "PRIMARYKEY" },
+      intervals: [],
       columns: [],
     });
   }
@@ -190,7 +192,7 @@ export default function ErrorDatabase() {
     dbIndex,
     tableIndex,
     tableProperty,
-    e,
+    value,
     filteredCol = false
   ) {
     setDatabases(
@@ -199,8 +201,8 @@ export default function ErrorDatabase() {
           database.tables = database.tables.map((table, i) => {
             if (tableIndex === i) {
               if (filteredCol) {
-                table.filterByCol[tableProperty] = e.target.value;
-              } else table[tableProperty] = e.target.value;
+                table.filterByCol[tableProperty] = value;
+              } else table[tableProperty] = value;
 
               return table;
             } else return table;
@@ -277,7 +279,6 @@ export default function ErrorDatabase() {
           time,
         })
         .then((res) => {
-          console.log(res.data);
           setStatus(true);
           setTimestamp(res.data.timestamp);
           return res.data;
@@ -301,7 +302,6 @@ export default function ErrorDatabase() {
       const result = await axios
         .get("/error-backup/stop")
         .then((res) => {
-          console.log(res.data);
           setStatus(false);
           setTimestamp(res.data.timestamp);
           return res.data;

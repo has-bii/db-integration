@@ -36,6 +36,7 @@ export default function Database() {
     sourceTable: "",
     targetTable: "",
     filterByCol: { source: "", target: "", type: "PRIMARYKEY" },
+    intervals: [],
     columns: [],
   });
   const [newColumns, setNewColumns] = useState([]);
@@ -68,6 +69,7 @@ export default function Database() {
     sourceTable: "",
     targetTable: "",
     filterByCol: { source: "", target: "", type: "PRIMARYKEY" },
+    intervals: [],
     columns: [],
   });
   const [getColsLoad, setGetColsLoad] = useState(false);
@@ -92,22 +94,22 @@ export default function Database() {
       });
   }
 
+  async function fetchBackup() {
+    await axios
+      .get("/backup/isRunning")
+      .then((res) => {
+        setIntervals(res.data.intervals);
+      })
+      .catch((err) => {
+        console.error("Error while checking backup is running: ", err);
+      });
+  }
+
   useEffect(() => {
     fetchDatabases();
   }, []);
 
   useEffect(() => {
-    async function fetchBackup() {
-      await axios
-        .get("/backup/isRunning")
-        .then((res) => {
-          setIntervals(res.data.intervals);
-        })
-        .catch((err) => {
-          console.error("Error while checking backup is running: ", err);
-        });
-    }
-
     fetchBackup();
   }, []);
 
@@ -176,6 +178,7 @@ export default function Database() {
       sourceTable: "",
       targetTable: "",
       filterByCol: { source: "", target: "", type: "PRIMARYKEY" },
+      intervals: [],
       columns: [],
     });
   }
@@ -280,7 +283,7 @@ export default function Database() {
 
   function startBackup() {
     async function start() {
-      pushToast(true, "Starting backup...");
+      pushToast(true, "Applying intervals...");
       const result = await axios
         .post("/backup/start", { intervals })
         .then((res) => {
@@ -291,6 +294,28 @@ export default function Database() {
           console.error("Error while starting main backup!\nError: ", err);
           return null;
         });
+
+      if (result) pushToast(true, result.message);
+    }
+
+    start();
+  }
+
+  function startAllBackup() {
+    async function start() {
+      pushToast(true, "Starting all tasks...");
+      const result = await axios
+        .post("/backup/start-all", { intervals })
+        .then((res) => {
+          setIntervals(res.data.intervals);
+          return res.data;
+        })
+        .catch((err) => {
+          console.error("Error while starting all tasks!\nError: ", err);
+          return null;
+        });
+
+      if (result) pushToast(true, result.message);
     }
 
     start();
@@ -298,19 +323,20 @@ export default function Database() {
 
   function stopBackup() {
     async function stop() {
-      pushToast(true, "Stopping backup...");
+      pushToast(true, "Stopping all tasks...");
       const result = await axios
-        .get("/backup/stop")
+        .get("/backup/stop-all")
         .then((res) => {
+          setIntervals(res.data.intervals);
           return res.data;
         })
         .catch((err) => {
-          console.error("Error while stopping main backup!\nError: ", err);
+          console.error("Error while stopping all tasks!\nError: ", err);
           return null;
         });
 
       if (result) pushToast(result.status, result.message);
-      else pushToast(false, "Failed to stop backup!");
+      else pushToast(false, "Failed to stop all tasks!");
     }
 
     stop();
@@ -322,6 +348,7 @@ export default function Database() {
       const result = await axios
         .post("/backup/restart")
         .then((res) => {
+          setIntervals(res.data.intervals);
           return res.data;
         })
         .catch((err) => {
@@ -376,7 +403,7 @@ export default function Database() {
   return (
     <>
       <button
-        className="w-20 h-20 inline-flex justify-center items-center z-40 fixed bottom-6 right-8 rounded-full bg-black text-white"
+        className="w-20 h-20 inline-flex justify-center items-center drop-shadow-lg z-40 fixed bottom-6 right-8 rounded-full bg-sky-300 text-white"
         onClick={() => {
           pushToast(true, "Saving...");
           saveConfigs();
@@ -613,15 +640,15 @@ export default function Database() {
                   </button>
                 </li>
                 <li>
-                  <button onClick={startBackup}>
+                  <button onClick={startAllBackup}>
                     <FontAwesomeIcon icon={faPlay} />
-                    Start
+                    Start all
                   </button>
                 </li>
                 <li>
                   <button onClick={stopBackup}>
                     <FontAwesomeIcon icon={faStop} />
-                    Stop
+                    Stop all
                   </button>
                 </li>
                 <li>
@@ -636,6 +663,7 @@ export default function Database() {
                       setLoading(true);
                       setDatabases([]);
                       fetchDatabases();
+                      fetchBackup();
                     }}
                   >
                     <FontAwesomeIcon icon={faRotate} />
