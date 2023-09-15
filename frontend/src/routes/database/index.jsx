@@ -64,6 +64,7 @@ export default function Database() {
       },
     },
     tables: [],
+    sqls: [],
   });
   const [newTableDB, setNewTableDB] = useState({
     sourceTable: "",
@@ -760,6 +761,7 @@ export default function Database() {
               delTables={delTables}
               setSelectedTable={setSelectedTable}
               intervals={intervals}
+              saveConfigs={saveConfigs}
             />
           ))
         ) : (

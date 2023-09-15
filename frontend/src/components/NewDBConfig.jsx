@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretDown, faCircleNotch } from "@fortawesome/free-solid-svg-icons";
 import { useToast } from "./ToastProvider";
 import Dropdown from "./Dropdown";
+import formatDate from "../../lib/convertDate";
 
 function NewDBConfig({
   showNewDB,
@@ -33,6 +34,14 @@ function NewDBConfig({
   const [loadingTarget, setLoadingTarget] = useState(false);
   const [errorSource, setErrorSource] = useState(false);
   const [errorTarget, setErrorTarget] = useState(false);
+  const [newSQL, setNewSQL] = useState({
+    label: "",
+    connection: "",
+    query: "",
+    intervals: [],
+  });
+  const [newSQLModal, setNewSQLModal] = useState(false);
+  const [selectedSQL, setSelectedSQL] = useState("");
 
   function checkConnection(connection, setLoad, setError) {
     async function check() {
@@ -79,6 +88,7 @@ function NewDBConfig({
         },
       },
       tables: [],
+      sqls: [],
     });
 
     setShowNewDB(false);
@@ -87,13 +97,9 @@ function NewDBConfig({
   function saveNewDB(e) {
     e.preventDefault();
 
-    if (newDB.tables.length === 0) {
-      alert("Tables is required!");
-    } else {
-      setDatabases((prev) => [newDB, ...prev]);
+    setDatabases((prev) => [newDB, ...prev]);
 
-      clearNewDB();
-    }
+    clearNewDB();
   }
 
   function updateTablesHandler(e, tableIndex, key) {
@@ -161,6 +167,56 @@ function NewDBConfig({
     });
 
     setEditColumnsModal(false);
+  }
+
+  function clearNewSQL() {
+    setNewSQL({
+      label: "",
+      connection: "",
+      query: "",
+    });
+  }
+
+  async function pushNewSQL() {
+    setNewSQLModal(false);
+    async function push() {
+      await setNewDB({
+        ...newDB,
+        sqls: [
+          ...newDB.sqls,
+          {
+            label: newSQL.label,
+            connection: newSQL.connection,
+            query: newSQL.query,
+            date: new Date(),
+            intervals: newSQL.intervals,
+          },
+        ],
+      });
+    }
+
+    async function pushEditedSQL() {
+      await setNewDB({
+        ...newDB,
+        sqls: newDB.sqls.map((sql, i) => {
+          if (selectedSQL === i) {
+            return {
+              label: newSQL.label,
+              connection: newSQL.connection,
+              query: newSQL.query,
+              date: new Date(),
+              intervals: newSQL.intervals,
+            };
+          }
+
+          return sql;
+        }),
+      });
+    }
+
+    selectedSQL.length === 0 ? await push() : await pushEditedSQL();
+    setSelectedSQL("");
+    clearNewSQL();
   }
 
   return (
@@ -294,6 +350,60 @@ function NewDBConfig({
             }}
           >
             Save
+          </button>
+        </div>
+      </Modal>
+      <Modal show={newSQLModal} setShow={setNewSQLModal} header="New SQL">
+        <div className="flex flex-col gap-4">
+          <div className="inline-flex gap-4">
+            <input
+              type="text"
+              placeholder="Label name"
+              className="px-3 py-1.5 rounded-md bg-slate-200 placeholder:text-slate-400 text-black"
+              value={newSQL.label}
+              onChange={(e) => setNewSQL({ ...newSQL, label: e.target.value })}
+            />
+            <select
+              className="px-3 py-1.5 rounded-md bg-slate-200 placeholder:text-slate-400 text-black"
+              value={newSQL.connection}
+              onChange={(e) =>
+                setNewSQL({ ...newSQL, connection: e.target.value })
+              }
+            >
+              <option value="">Select connection</option>
+              <option value="source">Source</option>
+              <option value="target">Target</option>
+            </select>
+          </div>
+          <textarea
+            className="rounded-md bg-slate-200 outline-none px-4 py-2"
+            cols="30"
+            rows="10"
+            placeholder="Query..."
+            value={newSQL.query}
+            onChange={(e) => setNewSQL({ ...newSQL, query: e.target.value })}
+          />
+        </div>
+        <div className="btn-container">
+          <button
+            className="btn gray"
+            onClick={() => {
+              clearNewSQL();
+              setNewSQLModal(false);
+            }}
+          >
+            cancel
+          </button>
+          <button
+            className="btn green"
+            onClick={pushNewSQL}
+            disabled={
+              newSQL.label.length === 0 ||
+              newSQL.connection.length === 0 ||
+              newSQL.query.length === 0
+            }
+          >
+            save
           </button>
         </div>
       </Modal>
@@ -650,7 +760,7 @@ function NewDBConfig({
               <tbody>
                 {newDB.tables.map((table, tableIndex) => (
                   <tr key={tableIndex}>
-                    <th scope="row" className=" whitespace-pre">
+                    <th scope="row" className="whitespace-pre">
                       {tableIndex + 1}
                     </th>
                     <td>
@@ -907,15 +1017,85 @@ function NewDBConfig({
             </table>
           </div>
         </div>
+        <div className="sqls">
+          <h4 className="heading">SQL</h4>
+          <div className="tables-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Label</th>
+                  <th scope="col">Connection</th>
+                  <th scope="col">Date</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {newDB.sqls.map((sql, sqlIndex) => (
+                  <tr key={sqlIndex}>
+                    <th scope="row" className="whitespace-pre">
+                      {sqlIndex + 1}
+                    </th>
+                    <td>{sql.label}</td>
+                    <td>{sql.connection}</td>
+                    <td>{formatDate(new Date(sql.date))}</td>
+                    <td>
+                      <div className="inline-flex gap-2">
+                        <button
+                          type="button"
+                          className="btn sky"
+                          onClick={() => {
+                            setSelectedSQL(sqlIndex);
+                            setNewSQL(sql);
+                            setNewSQLModal(true);
+                          }}
+                        >
+                          edit
+                        </button>
+                        <button
+                          className="btn red"
+                          onClick={() =>
+                            setNewDB({
+                              ...newDB,
+                              sqls: newDB.sqls.filter(
+                                (filterSQL, i) => i !== sqlIndex
+                              ),
+                            })
+                          }
+                        >
+                          delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+
+                {/* New Row */}
+                <tr>
+                  <td colSpan={6}>
+                    <div className="flex flex-row items-center">
+                      {newDB.sqls.length === 0 && (
+                        <div className="text-slate-400">There is no SQL</div>
+                      )}
+                      <button
+                        type="button"
+                        className="ml-auto btn green"
+                        onClick={() => setNewSQLModal(true)}
+                      >
+                        Add SQL
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
         <div className="btn-container">
           <button className="btn red" type="reset" onClick={clearNewDB}>
             Cancel
           </button>
-          <button
-            type="submit"
-            className="btn green"
-            disabled={errorSource || errorTarget || newDB.tables.length === 0}
-          >
+          <button type="submit" className="btn green">
             Save
           </button>
         </div>

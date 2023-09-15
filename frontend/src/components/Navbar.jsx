@@ -4,14 +4,13 @@ import { useCookies } from "react-cookie";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBell,
-  faCircleExclamation,
   faDatabase,
   faDungeon,
-  faRightFromBracket,
 } from "@fortawesome/free-solid-svg-icons";
 import Dropdown from "./Dropdown";
 import convertDate from "../../lib/convertDate";
 import axios from "../../lib/axios";
+import ErrorTables from "./ErrorTables";
 
 export default function Navbar() {
   const [cookies, setCookie, removeCookie] = useCookies(["access_token"]);
@@ -19,11 +18,6 @@ export default function Navbar() {
   const navigate = useNavigate();
   const [ErrorJSON, setErrorJSON] = useState([]);
   const [readErrorJSON, setReadErrorJSON] = useState(0);
-
-  const logoutHandler = () => {
-    removeCookie("access_token");
-    navigate("/login");
-  };
 
   useEffect(() => {
     function connect() {
@@ -100,8 +94,8 @@ export default function Navbar() {
             className={location.pathname === "/error" ? "active" : ""}
             to={"/error"}
           >
-            <FontAwesomeIcon icon={faCircleExclamation} size="xl" />
-            <span className="hidden md:block">Error</span>
+            <FontAwesomeIcon icon={faDatabase} size="xl" />
+            <span className="hidden md:block">Error Database</span>
           </Link>
         </li>
         <li>
@@ -158,13 +152,7 @@ export default function Navbar() {
           </div>
         </li>
         <li>
-          <button
-            onClick={logoutHandler}
-            className="inline-flex gap-2 items-center"
-          >
-            <FontAwesomeIcon icon={faRightFromBracket} size="xl" />
-            <span className="hidden md:block">Logout</span>
-          </button>
+          <ErrorTables />
         </li>
       </ul>
     </div>

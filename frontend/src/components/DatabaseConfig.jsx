@@ -6,6 +6,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleNotch, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { useToast } from "./ToastProvider";
 import Dropdown from "./Dropdown";
+import formatDate from "../../lib/convertDate";
+import Sqls from "./Sqls";
 
 function DatabaseConfig({
   database,
@@ -23,6 +25,7 @@ function DatabaseConfig({
   delDatabaseHandler,
   setSelectedTable,
   intervals = null,
+  saveConfigs,
 }) {
   const { pushToast } = useToast();
   const [delModal, setDelModal] = useState(false);
@@ -470,7 +473,7 @@ function DatabaseConfig({
                               </div>
                               {table.intervals.length === 0 ? (
                                 <div className="mx-auto text-slate-400">
-                                  Runs all intervals
+                                  Not running
                                 </div>
                               ) : (
                                 table.intervals.map((interval, index) => (
@@ -647,6 +650,9 @@ function DatabaseConfig({
           >
             delete
           </button>
+          <button className="btn green" onClick={saveConfigs}>
+            save
+          </button>
         </div>
       </div>
     </>
@@ -669,6 +675,7 @@ DatabaseConfig.propTypes = {
   delDatabaseHandler: PropTypes.func.isRequired,
   setSelectedTable: PropTypes.func.isRequired,
   intervals: PropTypes.array,
+  saveConfigs: PropTypes.func.isRequired,
 };
 
 export default DatabaseConfig;
