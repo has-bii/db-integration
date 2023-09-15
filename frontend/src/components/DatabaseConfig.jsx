@@ -636,6 +636,7 @@ function DatabaseConfig({
             </table>
           </div>
         </div>
+        <Sqls sqls={database.sqls} />
         <div className="btn-container">
           <button
             className="btn red"
