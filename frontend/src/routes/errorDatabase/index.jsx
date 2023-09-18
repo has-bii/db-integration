@@ -647,6 +647,7 @@ export default function ErrorDatabase() {
               setSelected={setSelected}
               delTables={delTables}
               setSelectedTable={setSelectedTable}
+              saveConfigs={saveConfigs}
             />
           ))
         ) : (
