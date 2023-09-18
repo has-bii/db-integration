@@ -19,7 +19,6 @@ export default function formatDate(date) {
       minute: "2-digit",
       second: "2-digit",
       hour12: false,
-      timeZoneName: "short",
     };
     return date.toLocaleDateString(undefined, options);
   }
