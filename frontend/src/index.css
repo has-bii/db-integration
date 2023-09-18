@@ -48,7 +48,7 @@
     @apply flex justify-end gap-2;
 }
 
-.navbar a,.navbar button {
+.navbar a, .navbar button {
     @apply inline-flex items-center gap-4 text-slate-400 hover:text-sky-300 transition-colors duration-150 ease-in;
 }
 
@@ -109,7 +109,7 @@
 }
 
 .tables-wrapper {
-    @apply relative overflow-x-auto rounded;
+    @apply relative overflow-auto rounded;
 }
 
 .tables-wrapper.enable-overflow {
@@ -226,4 +226,8 @@
 
 .toast.red {
     @apply border-red-500 bg-red-200 text-red-500
+}
+
+div.pagination > button {
+    @apply rounded-full text-sky-300 inline-flex items-center justify-center w-10 h-10 hover:text-sky-500 hover:bg-sky-100 disabled:text-slate-300
 }
