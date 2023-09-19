@@ -1,12 +1,12 @@
 import PropTypes from "prop-types";
 import Modal from "./Modal";
 import axios from "../../lib/axios";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretDown, faCircleNotch } from "@fortawesome/free-solid-svg-icons";
 import { useToast } from "./ToastProvider";
 import Dropdown from "./Dropdown";
-import formatDate from "../../lib/convertDate";
+import ReadWriteSQL from "./ReadWriteSQL";
 
 function NewDBConfig({
   showNewDB,
@@ -34,14 +34,28 @@ function NewDBConfig({
   const [loadingTarget, setLoadingTarget] = useState(false);
   const [errorSource, setErrorSource] = useState(false);
   const [errorTarget, setErrorTarget] = useState(false);
+  const [newSQLModal, setNewSQLModal] = useState(false);
+  const [selectedSQL, setSelectedSQL] = useState(null);
   const [newSQL, setNewSQL] = useState({
     label: "",
-    connection: "",
-    query: "",
+    type: "",
+    query: {},
     intervals: [],
   });
-  const [newSQLModal, setNewSQLModal] = useState(false);
-  const [selectedSQL, setSelectedSQL] = useState("");
+  const [query, setQuery] = useState({
+    columnsSQL: [],
+    from: "",
+    joinType: "",
+    joinTable: "",
+    targetTable: "",
+    values: [],
+  });
+  const [rawQuery, setRawQuery] = useState("");
+  const [rawQueryTarget, setRawQueryTarget] = useState("");
+
+  useEffect(() => {
+    setNewSQL({ ...newSQL, query: query });
+  }, [query]);
 
   function checkConnection(connection, setLoad, setError) {
     async function check() {
@@ -169,44 +183,22 @@ function NewDBConfig({
     setEditColumnsModal(false);
   }
 
-  function clearNewSQL() {
-    setNewSQL({
-      label: "",
-      connection: "",
-      query: "",
-    });
-  }
-
   async function pushNewSQL() {
     setNewSQLModal(false);
     async function push() {
       await setNewDB({
         ...newDB,
-        sqls: [
-          ...newDB.sqls,
-          {
-            label: newSQL.label,
-            connection: newSQL.connection,
-            query: newSQL.query,
-            date: new Date(),
-            intervals: newSQL.intervals,
-          },
-        ],
+        sqls: [...newDB.sqls, newSQL],
       });
     }
 
-    async function pushEditedSQL() {
+    async function pushEditedSQL(id) {
+      const idInt = parseInt(id);
       await setNewDB({
         ...newDB,
         sqls: newDB.sqls.map((sql, i) => {
-          if (selectedSQL === i) {
-            return {
-              label: newSQL.label,
-              connection: newSQL.connection,
-              query: newSQL.query,
-              date: new Date(),
-              intervals: newSQL.intervals,
-            };
+          if (idInt === i) {
+            return newSQL;
           }
 
           return sql;
@@ -214,10 +206,63 @@ function NewDBConfig({
       });
     }
 
-    selectedSQL.length === 0 ? await push() : await pushEditedSQL();
-    setSelectedSQL("");
+    selectedSQL === null ? await push() : await pushEditedSQL(selectedSQL);
+    setSelectedSQL(null);
     clearNewSQL();
   }
+
+  function clearNewSQL() {
+    setNewSQL({
+      label: "",
+      type: "",
+      query: {},
+      intervals: [],
+    });
+  }
+
+  function checkQuery() {
+    if (newSQL.label.length === 0) return true;
+
+    if (newSQL.type.length === 0) return true;
+
+    if (newSQL.type === "read & write") {
+      if (query.columnsSQL.length === 0) return true;
+
+      if (query.from.length === 0) return true;
+
+      if (query.targetTable === 0) return true;
+
+      if (query.values.length === 0) return true;
+
+      const checkValues = query.values.some(
+        (value) => !query.columnsSQL.some((col) => value === col.name)
+      );
+
+      return checkValues;
+    }
+
+    return true;
+  }
+
+  useEffect(() => {
+    if (newSQL.type === "read & write") {
+      const raw = `SELECT ${query.columnsSQL
+        .map((item) => item.column + " AS " + `"${item.name}"`)
+        .join(", ")}\nFROM ${query.from}`;
+
+      setRawQuery(raw);
+
+      const rawTarget = `INSERT INTO ${query.targetTable} (${query.values.join(
+        ", "
+      )})\nVALUES (${query.values.join(", ")})`;
+
+      if (query.targetTable.length === 0 || query.values.length === 0)
+        setRawQueryTarget("...");
+      else setRawQueryTarget(rawTarget);
+    } else {
+      setRawQuery("");
+    }
+  }, [query]);
 
   return (
     <>
@@ -353,8 +398,9 @@ function NewDBConfig({
           </button>
         </div>
       </Modal>
+
       <Modal show={newSQLModal} setShow={setNewSQLModal} header="New SQL">
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
           <div className="inline-flex gap-4">
             <input
               type="text"
@@ -365,24 +411,28 @@ function NewDBConfig({
             />
             <select
               className="px-3 py-1.5 rounded-md bg-slate-200 placeholder:text-slate-400 text-black"
-              value={newSQL.connection}
-              onChange={(e) =>
-                setNewSQL({ ...newSQL, connection: e.target.value })
-              }
+              value={newSQL.type}
+              onChange={(e) => setNewSQL({ ...newSQL, type: e.target.value })}
             >
-              <option value="">Select connection</option>
-              <option value="source">Source</option>
-              <option value="target">Target</option>
+              <option value="">Select type</option>
+              <option value="read & write">Read & write</option>
             </select>
           </div>
-          <textarea
-            className="rounded-md bg-slate-200 outline-none px-4 py-2"
-            cols="30"
-            rows="10"
-            placeholder="Query..."
-            value={newSQL.query}
-            onChange={(e) => setNewSQL({ ...newSQL, query: e.target.value })}
-          />
+
+          {newSQL.type === "read & write" && (
+            <ReadWriteSQL query={query} setQuery={setQuery} />
+          )}
+          {newSQL.type === "read & write" && (
+            <>
+              <h6 className="font-semibold mt-2">QUERY</h6>
+              <div className="inline-flex gap-4">
+                <pre className="p-6 border rounded-md w-1/2">{rawQuery}</pre>
+                <pre className="p-6 border rounded-md w-1/2">
+                  {rawQueryTarget}
+                </pre>
+              </div>
+            </>
+          )}
         </div>
         <div className="btn-container">
           <button
@@ -390,6 +440,7 @@ function NewDBConfig({
             onClick={() => {
               clearNewSQL();
               setNewSQLModal(false);
+              setSelectedSQL(null);
             }}
           >
             cancel
@@ -397,16 +448,13 @@ function NewDBConfig({
           <button
             className="btn green"
             onClick={pushNewSQL}
-            disabled={
-              newSQL.label.length === 0 ||
-              newSQL.connection.length === 0 ||
-              newSQL.query.length === 0
-            }
+            disabled={checkQuery()}
           >
             save
           </button>
         </div>
       </Modal>
+
       <form
         onSubmit={saveNewDB}
         className={`database-container new ${showNewDB ? "" : "hide"}`}
@@ -1006,6 +1054,7 @@ function NewDBConfig({
                             type: "PRIMARYKEY",
                           },
                           columns: [],
+                          sqls: [],
                         });
                       }}
                     >
@@ -1025,20 +1074,20 @@ function NewDBConfig({
                 <tr>
                   <th scope="col">#</th>
                   <th scope="col">Label</th>
-                  <th scope="col">Connection</th>
-                  <th scope="col">Date</th>
+                  <th scope="col">Type</th>
                   <th scope="col">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {newDB.sqls.map((sql, sqlIndex) => (
                   <tr key={sqlIndex}>
-                    <th scope="row" className="whitespace-pre">
+                    <th scope="row" className="whitespace-nowrap">
                       {sqlIndex + 1}
                     </th>
                     <td>{sql.label}</td>
-                    <td>{sql.connection}</td>
-                    <td>{formatDate(new Date(sql.date))}</td>
+                    <td>{sql.type}</td>
+                    <td>{sql.sourceQuery}</td>
+                    <td>{sql.targetQuery}</td>
                     <td>
                       <div className="inline-flex gap-2">
                         <button

@@ -72,6 +72,7 @@ export default function Database() {
     filterByCol: { source: "", target: "", type: "PRIMARYKEY" },
     intervals: [],
     columns: [],
+    sqls: [],
   });
   const [getColsLoad, setGetColsLoad] = useState(false);
   const [selectedTable, setSelectedTable] = useState({
@@ -748,6 +749,8 @@ export default function Database() {
               key={index}
               index={index}
               database={database}
+              databases={databases}
+              setDatabases={setDatabases}
               delDatabaseHandler={delDatabaseHandler}
               newTable={newTable}
               setNewTable={setNewTable}

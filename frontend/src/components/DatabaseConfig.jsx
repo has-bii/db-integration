@@ -6,11 +6,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleNotch, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { useToast } from "./ToastProvider";
 import Dropdown from "./Dropdown";
-import formatDate from "../../lib/convertDate";
 import Sqls from "./Sqls";
 
 function DatabaseConfig({
   database,
+  databases,
+  setDatabases,
   index,
   newTable,
   setNewTable,
@@ -35,6 +36,25 @@ function DatabaseConfig({
   const [errorSource, setErrorSource] = useState(false);
   const [errorTarget, setErrorTarget] = useState(false);
   const [selectedInterval, setSelectedInterval] = useState("");
+  const [newSQLModal, setNewSQLModal] = useState(false);
+  const [selectedSQL, setSelectedSQL] = useState(null);
+  const [newSQL, setNewSQL] = useState({
+    label: "",
+    type: "",
+    sourceQuery: "",
+    targetQuery: "",
+    intervals: [],
+  });
+
+  function clearNewSQL() {
+    setNewSQL({
+      label: "",
+      type: "",
+      sourceQuery: "",
+      targetQuery: "",
+      intervals: [],
+    });
+  }
 
   function checkConnection(connection, setLoad, setError) {
     async function check() {
@@ -60,6 +80,87 @@ function DatabaseConfig({
     }
 
     check();
+  }
+
+  async function saveSQL(dbIndex) {
+    async function add() {
+      await setDatabases(
+        databases.map((db, i) => {
+          if (dbIndex === i) {
+            db.sqls = [...db.sqls, newSQL];
+          }
+          return db;
+        })
+      );
+    }
+
+    async function update() {
+      await setDatabases(
+        databases.map((db, i) => {
+          if (dbIndex === i) {
+            db.sqls = db.sqls.map((sql, sqlIndex) => {
+              if (sqlIndex === selectedSQL) return newSQL;
+
+              return sql;
+            });
+          }
+          return db;
+        })
+      );
+    }
+
+    selectedSQL === null ? await add() : await update();
+
+    clearNewSQL();
+    setNewSQLModal(false);
+    setSelectedSQL(null);
+  }
+
+  function delSQL(dbIndex, sqlIndex) {
+    setDatabases(
+      databases.map((db, i) => {
+        if (dbIndex === i) {
+          db.sqls = db.sqls.filter((sql, index) => sqlIndex !== index);
+        }
+        return db;
+      })
+    );
+  }
+
+  function addIntervalSQL(dbIndex, sqlIndex, interval) {
+    setDatabases(
+      databases.map((db, dbI) => {
+        if (dbIndex === dbI) {
+          db.sqls = db.sqls.map((sql, sqlI) => {
+            if (sqlIndex === sqlI) {
+              sql.intervals = [...sql.intervals, interval];
+            }
+            return sql;
+          });
+        }
+
+        return db;
+      })
+    );
+  }
+
+  function delIntervalSQL(dbIndex, sqlIndex, intervalIndex) {
+    setDatabases(
+      databases.map((db, dbI) => {
+        if (dbIndex === dbI) {
+          db.sqls = db.sqls.map((sql, sqlI) => {
+            if (sqlIndex === sqlI) {
+              sql.intervals = sql.intervals.filter(
+                (interval, intervalI) => intervalI !== intervalIndex
+              );
+            }
+            return sql;
+          });
+        }
+
+        return db;
+      })
+    );
   }
 
   return (
@@ -95,6 +196,79 @@ function DatabaseConfig({
           </button>
         </div>
       </Modal>
+
+      <Modal show={newSQLModal} setShow={setNewSQLModal} header="New SQL">
+        <div className="flex flex-col gap-4">
+          <div className="inline-flex gap-4">
+            <input
+              type="text"
+              placeholder="Label name"
+              className="px-3 py-1.5 rounded-md bg-slate-200 placeholder:text-slate-400 text-black"
+              value={newSQL.label}
+              onChange={(e) => setNewSQL({ ...newSQL, label: e.target.value })}
+            />
+            <select
+              className="px-3 py-1.5 rounded-md bg-slate-200 placeholder:text-slate-400 text-black"
+              value={newSQL.type}
+              onChange={(e) => setNewSQL({ ...newSQL, type: e.target.value })}
+            >
+              <option value="">Select type</option>
+              <option value="read & write">Read & write</option>
+            </select>
+          </div>
+          <div className="inline-flex gap-4">
+            {newSQL.type === "read & write" && (
+              <>
+                <textarea
+                  className="rounded-md bg-slate-200 outline-none px-4 py-2"
+                  cols="30"
+                  rows="10"
+                  placeholder="Source Query..."
+                  value={newSQL.sourceQuery}
+                  onChange={(e) =>
+                    setNewSQL({ ...newSQL, sourceQuery: e.target.value })
+                  }
+                />
+                <textarea
+                  className="rounded-md bg-slate-200 outline-none px-4 py-2"
+                  cols="30"
+                  rows="10"
+                  placeholder="Target Query..."
+                  value={newSQL.targetQuery}
+                  onChange={(e) =>
+                    setNewSQL({ ...newSQL, targetQuery: e.target.value })
+                  }
+                />
+              </>
+            )}
+          </div>
+        </div>
+        <div className="btn-container">
+          <button
+            className="btn gray"
+            onClick={() => {
+              clearNewSQL();
+              setNewSQLModal(false);
+              setSelectedSQL(null);
+            }}
+          >
+            cancel
+          </button>
+          <button
+            className="btn green"
+            disabled={
+              newSQL.label.length === 0 ||
+              newSQL.type.length === 0 ||
+              newSQL.sourceQuery.length === 0 ||
+              newSQL.targetQuery.length === 0
+            }
+            onClick={() => saveSQL(index)}
+          >
+            save
+          </button>
+        </div>
+      </Modal>
+
       <div className="database-container">
         <div className="connection">
           <div className="source">
@@ -639,7 +813,19 @@ function DatabaseConfig({
             </table>
           </div>
         </div>
-        <Sqls sqls={database.sqls} />
+        <Sqls
+          sqls={database.sqls}
+          setNewSQLModal={setNewSQLModal}
+          delSQL={delSQL}
+          dbIndex={index}
+          setNewSQL={setNewSQL}
+          setSelectedSQL={setSelectedSQL}
+          intervals={intervals}
+          selectedInterval={selectedInterval}
+          setSelectedInterval={setSelectedInterval}
+          addIntervalSQL={addIntervalSQL}
+          delIntervalSQL={delIntervalSQL}
+        />
         <div className="btn-container">
           <button
             className="btn red"
