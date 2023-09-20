@@ -45,8 +45,8 @@ function NewDBConfig({
   const [query, setQuery] = useState({
     columnsSQL: [],
     from: "",
-    joinType: "",
-    joinTable: "",
+    joins: [],
+    wheres: [],
     targetTable: "",
     values: [],
   });
@@ -209,6 +209,7 @@ function NewDBConfig({
     selectedSQL === null ? await push() : await pushEditedSQL(selectedSQL);
     setSelectedSQL(null);
     clearNewSQL();
+    clearQuery();
   }
 
   function clearNewSQL() {
@@ -217,6 +218,17 @@ function NewDBConfig({
       type: "",
       query: {},
       intervals: [],
+    });
+  }
+
+  function clearQuery() {
+    setQuery({
+      columnsSQL: [],
+      from: "",
+      joins: [],
+      wheres: [],
+      targetTable: "",
+      values: [],
     });
   }
 
@@ -244,23 +256,54 @@ function NewDBConfig({
     return true;
   }
 
+  function editSQL(sql, sqlIndex) {
+    setSelectedSQL(sqlIndex);
+
+    if (sql.type === "read & write") {
+      setNewSQL(sql);
+      setQuery(sql.query);
+    }
+  }
+
   useEffect(() => {
-    if (newSQL.type === "read & write") {
-      const raw = `SELECT ${query.columnsSQL
-        .map((item) => item.column + " AS " + `"${item.name}"`)
-        .join(", ")}\nFROM ${query.from}`;
+    if (setNewSQLModal) {
+      if (newSQL.type === "read & write") {
+        const raw = `SELECT ${query.columnsSQL
+          .map((item) => item.column + " AS " + `"${item.name}"`)
+          .join(", ")}\nFROM ${query.from} ${
+          query.joins.length !== 0
+            ? `\n${query.joins
+                .map(
+                  (join) => join.type + " JOIN " + join.table + " ON " + join.on
+                )
+                .join("\n")}`
+            : ""
+        }${
+          query.wheres.length !== 0
+            ? `\nWHERE${query.wheres
+                .map((where) => `${where.condition} ${where.clause}`)
+                .join(" ")}`
+            : ""
+        }`;
 
-      setRawQuery(raw);
+        query.columnsSQL.length === 0 || query.from.length === 0
+          ? setRawQuery("...")
+          : setRawQuery(raw);
 
-      const rawTarget = `INSERT INTO ${query.targetTable} (${query.values.join(
-        ", "
-      )})\nVALUES (${query.values.join(", ")})`;
+        const rawTarget = `INSERT INTO ${
+          query.targetTable
+        } (${query.values.join(", ")})\nVALUES (${query.values.join(", ")})`;
 
-      if (query.targetTable.length === 0 || query.values.length === 0)
-        setRawQueryTarget("...");
-      else setRawQueryTarget(rawTarget);
+        query.targetTable.length === 0 || query.values.length === 0
+          ? setRawQueryTarget("...")
+          : setRawQueryTarget(rawTarget);
+      } else {
+        setRawQuery("");
+        setRawQueryTarget("");
+      }
     } else {
       setRawQuery("");
+      setRawQueryTarget("");
     }
   }, [query]);
 
@@ -399,8 +442,13 @@ function NewDBConfig({
         </div>
       </Modal>
 
-      <Modal show={newSQLModal} setShow={setNewSQLModal} header="New SQL">
-        <div className="flex flex-col gap-2">
+      <Modal
+        show={newSQLModal}
+        setShow={setNewSQLModal}
+        header="New SQL"
+        className="w-3/4"
+      >
+        <div className="flex flex-col gap-2 overflow-y-auto max-h-[50rem]">
           <div className="inline-flex gap-4">
             <input
               type="text"
@@ -426,8 +474,10 @@ function NewDBConfig({
             <>
               <h6 className="font-semibold mt-2">QUERY</h6>
               <div className="inline-flex gap-4">
-                <pre className="p-6 border rounded-md w-1/2">{rawQuery}</pre>
-                <pre className="p-6 border rounded-md w-1/2">
+                <pre className="p-6 border rounded-md w-1/2 overflow-x-auto">
+                  {rawQuery}
+                </pre>
+                <pre className="p-6 border rounded-md w-1/2 overflow-x-auto">
                   {rawQueryTarget}
                 </pre>
               </div>
@@ -441,6 +491,7 @@ function NewDBConfig({
               clearNewSQL();
               setNewSQLModal(false);
               setSelectedSQL(null);
+              clearQuery();
             }}
           >
             cancel
@@ -1086,16 +1137,13 @@ function NewDBConfig({
                     </th>
                     <td>{sql.label}</td>
                     <td>{sql.type}</td>
-                    <td>{sql.sourceQuery}</td>
-                    <td>{sql.targetQuery}</td>
                     <td>
                       <div className="inline-flex gap-2">
                         <button
                           type="button"
                           className="btn sky"
                           onClick={() => {
-                            setSelectedSQL(sqlIndex);
-                            setNewSQL(sql);
+                            editSQL(sql, sqlIndex);
                             setNewSQLModal(true);
                           }}
                         >

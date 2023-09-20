@@ -15,6 +15,7 @@ function Sqls({
   setSelectedInterval,
   addIntervalSQL,
   delIntervalSQL,
+  editSQL,
 }) {
   return (
     <div className="sqls">
@@ -42,7 +43,7 @@ function Sqls({
                       className="btn sky"
                       onClick={() => {
                         setSelectedSQL(sqlIndex);
-                        setNewSQL(sql);
+                        editSQL(sql, sqlIndex);
                         setNewSQLModal(true);
                       }}
                     >

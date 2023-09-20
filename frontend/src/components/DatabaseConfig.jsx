@@ -1,12 +1,13 @@
 import PropTypes from "prop-types";
 import Modal from "./Modal";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "../../lib/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleNotch, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { useToast } from "./ToastProvider";
 import Dropdown from "./Dropdown";
 import Sqls from "./Sqls";
+import ReadWriteSQL from "./ReadWriteSQL";
 
 function DatabaseConfig({
   database,
@@ -41,10 +42,23 @@ function DatabaseConfig({
   const [newSQL, setNewSQL] = useState({
     label: "",
     type: "",
-    sourceQuery: "",
-    targetQuery: "",
+    query: {},
     intervals: [],
   });
+  const [query, setQuery] = useState({
+    columnsSQL: [],
+    from: "",
+    joins: [],
+    wheres: [],
+    targetTable: "",
+    values: [],
+  });
+  const [rawQuery, setRawQuery] = useState("");
+  const [rawQueryTarget, setRawQueryTarget] = useState("");
+
+  useEffect(() => {
+    setNewSQL({ ...newSQL, query: query });
+  }, [query]);
 
   function clearNewSQL() {
     setNewSQL({
@@ -114,6 +128,7 @@ function DatabaseConfig({
     clearNewSQL();
     setNewSQLModal(false);
     setSelectedSQL(null);
+    clearQuery();
   }
 
   function delSQL(dbIndex, sqlIndex) {
@@ -163,6 +178,92 @@ function DatabaseConfig({
     );
   }
 
+  function checkQuery() {
+    if (newSQL.label.length === 0) return true;
+
+    if (newSQL.type.length === 0) return true;
+
+    if (newSQL.type === "read & write") {
+      if (query.columnsSQL.length === 0) return true;
+
+      if (query.from.length === 0) return true;
+
+      if (query.targetTable === 0) return true;
+
+      if (query.values.length === 0) return true;
+
+      const checkValues = query.values.some(
+        (value) => !query.columnsSQL.some((col) => value === col.name)
+      );
+
+      return checkValues;
+    }
+
+    return true;
+  }
+
+  function clearQuery() {
+    setQuery({
+      columnsSQL: [],
+      from: "",
+      joins: [],
+      wheres: [],
+      targetTable: "",
+      values: [],
+    });
+  }
+
+  function editSQL(sql, sqlIndex) {
+    setSelectedSQL(sqlIndex);
+
+    if (sql.type === "read & write") {
+      setNewSQL(sql);
+      setQuery(sql.query);
+    }
+  }
+
+  useEffect(() => {
+    if (setNewSQLModal) {
+      if (newSQL.type === "read & write") {
+        const raw = `SELECT ${query.columnsSQL
+          .map((item) => item.column + " AS " + `"${item.name}"`)
+          .join(", ")}\nFROM ${query.from} ${
+          query.joins.length !== 0
+            ? `\n${query.joins
+                .map(
+                  (join) => join.type + " JOIN " + join.table + " ON " + join.on
+                )
+                .join("\n")}`
+            : ""
+        }${
+          query.wheres.length !== 0
+            ? `\nWHERE${query.wheres
+                .map((where) => `${where.condition} ${where.clause}`)
+                .join(" ")}`
+            : ""
+        }`;
+
+        query.columnsSQL.length === 0 || query.from.length === 0
+          ? setRawQuery("...")
+          : setRawQuery(raw);
+
+        const rawTarget = `INSERT INTO ${
+          query.targetTable
+        } (${query.values.join(", ")})\nVALUES (${query.values.join(", ")})`;
+
+        query.targetTable.length === 0 || query.values.length === 0
+          ? setRawQueryTarget("...")
+          : setRawQueryTarget(rawTarget);
+      } else {
+        setRawQuery("");
+        setRawQueryTarget("");
+      }
+    } else {
+      setRawQuery("");
+      setRawQueryTarget("");
+    }
+  }, [query]);
+
   return (
     <>
       <Modal header="Delete Database" show={delModal} setShow={setDelModal}>
@@ -197,8 +298,13 @@ function DatabaseConfig({
         </div>
       </Modal>
 
-      <Modal show={newSQLModal} setShow={setNewSQLModal} header="New SQL">
-        <div className="flex flex-col gap-4">
+      <Modal
+        show={newSQLModal}
+        setShow={setNewSQLModal}
+        header="New SQL"
+        className="w-3/4"
+      >
+        <div className="flex flex-col gap-2 overflow-y-auto max-h-[50rem]">
           <div className="inline-flex gap-4">
             <input
               type="text"
@@ -216,32 +322,23 @@ function DatabaseConfig({
               <option value="read & write">Read & write</option>
             </select>
           </div>
-          <div className="inline-flex gap-4">
-            {newSQL.type === "read & write" && (
-              <>
-                <textarea
-                  className="rounded-md bg-slate-200 outline-none px-4 py-2"
-                  cols="30"
-                  rows="10"
-                  placeholder="Source Query..."
-                  value={newSQL.sourceQuery}
-                  onChange={(e) =>
-                    setNewSQL({ ...newSQL, sourceQuery: e.target.value })
-                  }
-                />
-                <textarea
-                  className="rounded-md bg-slate-200 outline-none px-4 py-2"
-                  cols="30"
-                  rows="10"
-                  placeholder="Target Query..."
-                  value={newSQL.targetQuery}
-                  onChange={(e) =>
-                    setNewSQL({ ...newSQL, targetQuery: e.target.value })
-                  }
-                />
-              </>
-            )}
-          </div>
+
+          {newSQL.type === "read & write" && (
+            <ReadWriteSQL query={query} setQuery={setQuery} />
+          )}
+          {newSQL.type === "read & write" && (
+            <>
+              <h6 className="font-semibold mt-2">QUERY</h6>
+              <div className="inline-flex gap-4">
+                <pre className="p-6 border rounded-md w-1/2 overflow-x-auto">
+                  {rawQuery}
+                </pre>
+                <pre className="p-6 border rounded-md w-1/2 overflow-x-auto">
+                  {rawQueryTarget}
+                </pre>
+              </div>
+            </>
+          )}
         </div>
         <div className="btn-container">
           <button
@@ -250,19 +347,15 @@ function DatabaseConfig({
               clearNewSQL();
               setNewSQLModal(false);
               setSelectedSQL(null);
+              clearQuery();
             }}
           >
             cancel
           </button>
           <button
             className="btn green"
-            disabled={
-              newSQL.label.length === 0 ||
-              newSQL.type.length === 0 ||
-              newSQL.sourceQuery.length === 0 ||
-              newSQL.targetQuery.length === 0
-            }
             onClick={() => saveSQL(index)}
+            disabled={checkQuery()}
           >
             save
           </button>
@@ -825,6 +918,7 @@ function DatabaseConfig({
           setSelectedInterval={setSelectedInterval}
           addIntervalSQL={addIntervalSQL}
           delIntervalSQL={delIntervalSQL}
+          editSQL={editSQL}
         />
         <div className="btn-container">
           <button

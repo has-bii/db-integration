@@ -421,7 +421,7 @@ export default function Database() {
   return (
     <>
       <button
-        className="w-20 h-20 inline-flex justify-center items-center drop-shadow-lg z-40 fixed bottom-6 right-8 rounded-full bg-sky-300 text-white"
+        className="w-20 h-20 inline-flex justify-center items-center drop-shadow-lg z-30 fixed bottom-6 right-8 rounded-full bg-sky-300 text-white"
         onClick={() => {
           pushToast(true, "Saving...");
           saveConfigs();
