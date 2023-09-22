@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "generate-key": "node lib/generateKey.js",
     "start": "node server.js",
-    "install-all": "npm install && npm run generate-key && cd frontend && npm install"
+    "install": "npm run generate-key"
   },
   "author": "",
   "license": "ISC",
