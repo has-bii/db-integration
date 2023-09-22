@@ -10,11 +10,12 @@ const { readErrorJson } = require("./lib/ErrorHandler")
 const fs = require("fs")
 
 const port = process.env.PORT || 3000 // Define the port
+const FE_URL = process.env.FE_URL || "http://localhost:5173"
 
 app.use(cookieParser())
 app.use(
   cors({
-    origin: process.env.FE_URL || "http://localhost:5173",
+    origin: FE_URL,
     credentials: true,
   })
 )
@@ -32,7 +33,7 @@ const server = http.createServer(app)
 const wss = new WebSocket.Server({
   noServer: true,
   cors: {
-    origin: process.env.FE_URL || "http://localhost:5173",
+    origin: FE_URL,
     credentials: true,
   },
 })
