@@ -1,18 +1,18 @@
-const jwt = require("jsonwebtoken");
+const jwt = require("jsonwebtoken")
 
-function authenticateJWT(req, res, next) {
-  const token = req.cookies.access_token;
+async function authenticateJWT(req, res, next) {
+  const token = req.cookies.access_token
 
   if (!token) {
-    return res.status(401).json({ message: "Unauthorized" });
+    return res.status(401).json({ message: "Unauthorized" })
   }
 
   jwt.verify(token, process.env.SECRET_KEY, (err) => {
     if (err) {
-      return res.status(403).json({ message: "Forbidden" });
+      return res.status(403).json({ message: "Forbidden" })
     }
-    next();
-  });
+    next()
+  })
 }
 
-module.exports = authenticateJWT;
+module.exports = authenticateJWT

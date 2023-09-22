@@ -9,6 +9,7 @@ router.post("/", (req, res) => {
   if (process.env.PASSWORD || "service" === password) {
     jwt.sign("Logged", process.env.SECRET_KEY, (err, token) => {
       if (err) {
+        console.log(err)
         return res.status(500).json({ message: "Error generating token" })
       }
       res

@@ -8,7 +8,8 @@ const apiRouter = require("./API")
 const cors = require("cors")
 const { readErrorJson } = require("./lib/ErrorHandler")
 const fs = require("fs")
-
+const generateSecretKey = require("./lib/generateSecretKey")
+generateSecretKey()
 const port = process.env.PORT || 3000 // Define the port
 const FE_URL = process.env.FE_URL || "http://localhost:5173"
 
