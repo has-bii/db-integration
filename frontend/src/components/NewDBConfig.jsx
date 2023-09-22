@@ -1,12 +1,12 @@
-import PropTypes from "prop-types";
-import Modal from "./Modal";
-import axios from "../../lib/axios";
-import { useEffect, useRef, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCaretDown, faCircleNotch } from "@fortawesome/free-solid-svg-icons";
-import { useToast } from "./ToastProvider";
-import Dropdown from "./Dropdown";
-import ReadWriteSQL from "./ReadWriteSQL";
+import PropTypes from "prop-types"
+import Modal from "./Modal"
+import axios from "../../lib/axios"
+import { useEffect, useRef, useState } from "react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faCaretDown, faCircleNotch } from "@fortawesome/free-solid-svg-icons"
+import { useToast } from "./ToastProvider"
+import Dropdown from "./Dropdown"
+import ReadWriteSQL from "./ReadWriteSQL"
 
 function NewDBConfig({
   showNewDB,
@@ -25,23 +25,23 @@ function NewDBConfig({
   getColumns,
   getColsLoad,
 }) {
-  const { pushToast } = useToast();
-  const [editColumnsModal, setEditColumnsModal] = useState(false);
-  const editColsSourceRef = useRef();
-  const editColsTargetRef = useRef();
-  const [selected, setSelected] = useState({ tableIndex: "" });
-  const [loadingSource, setLoadingSource] = useState(false);
-  const [loadingTarget, setLoadingTarget] = useState(false);
-  const [errorSource, setErrorSource] = useState(false);
-  const [errorTarget, setErrorTarget] = useState(false);
-  const [newSQLModal, setNewSQLModal] = useState(false);
-  const [selectedSQL, setSelectedSQL] = useState(null);
+  const { pushToast } = useToast()
+  const [editColumnsModal, setEditColumnsModal] = useState(false)
+  const editColsSourceRef = useRef()
+  const editColsTargetRef = useRef()
+  const [selected, setSelected] = useState({ tableIndex: "" })
+  const [loadingSource, setLoadingSource] = useState(false)
+  const [loadingTarget, setLoadingTarget] = useState(false)
+  const [errorSource, setErrorSource] = useState(false)
+  const [errorTarget, setErrorTarget] = useState(false)
+  const [newSQLModal, setNewSQLModal] = useState(false)
+  const [selectedSQL, setSelectedSQL] = useState(null)
   const [newSQL, setNewSQL] = useState({
     label: "",
     type: "",
     query: {},
     intervals: [],
-  });
+  })
   const [query, setQuery] = useState({
     columnsSQL: [],
     from: "",
@@ -49,36 +49,36 @@ function NewDBConfig({
     wheres: [],
     targetTable: "",
     values: [],
-  });
-  const [rawQuery, setRawQuery] = useState("");
-  const [rawQueryTarget, setRawQueryTarget] = useState("");
+  })
+  const [rawQuery, setRawQuery] = useState("")
+  const [rawQueryTarget, setRawQueryTarget] = useState("")
 
   useEffect(() => {
-    setNewSQL({ ...newSQL, query: query });
-  }, [query]);
+    setNewSQL({ ...newSQL, query: query })
+  }, [query])
 
   function checkConnection(connection, setLoad, setError) {
     async function check() {
-      setLoad(true);
+      setLoad(true)
 
       const res = await axios
         .post("/config/check-connection", {
           connection: JSON.stringify(connection),
         })
         .then((res) => {
-          pushToast(true, res.data.message);
-          setError(false);
-          return res.data;
+          pushToast(true, res.data.message)
+          setError(false)
+          return res.data
         })
         .catch((err) => {
-          pushToast(false, "Failed to connect!");
-          setError(true);
-          return null;
+          pushToast(false, "Failed to connect!")
+          setError(true)
+          return null
         })
-        .finally(() => setLoad(false));
+        .finally(() => setLoad(false))
     }
 
-    check();
+    check()
   }
 
   function clearNewDB() {
@@ -103,17 +103,17 @@ function NewDBConfig({
       },
       tables: [],
       sqls: [],
-    });
+    })
 
-    setShowNewDB(false);
+    setShowNewDB(false)
   }
 
   function saveNewDB(e) {
-    e.preventDefault();
+    e.preventDefault()
 
-    setDatabases((prev) => [newDB, ...prev]);
+    setDatabases((prev) => [newDB, ...prev])
 
-    clearNewDB();
+    clearNewDB()
   }
 
   function updateTablesHandler(e, tableIndex, key) {
@@ -121,12 +121,12 @@ function NewDBConfig({
       ...newDB,
       tables: newDB.tables.map((table, index) => {
         if (index === tableIndex) {
-          table[key] = e.target.value;
+          table[key] = e.target.value
         }
 
-        return table;
+        return table
       }),
-    });
+    })
   }
 
   function updateTablesFilterHandler(e, tableIndex, key) {
@@ -134,12 +134,12 @@ function NewDBConfig({
       ...newDB,
       tables: newDB.tables.map((table, index) => {
         if (index === tableIndex) {
-          table.filterByCol[key] = e.target.value;
+          table.filterByCol[key] = e.target.value
         }
 
-        return table;
+        return table
       }),
-    });
+    })
   }
 
   async function pushNewColumn() {
@@ -148,7 +148,7 @@ function NewDBConfig({
         editColsSourceRef.current.value.length === 0 ||
         editColsTargetRef.current.value.length === 0
       )
-        alert("Column names must not be empty!");
+        alert("Column names must not be empty!")
       else {
         setNewColumns((prev) => [
           ...prev,
@@ -156,16 +156,16 @@ function NewDBConfig({
             source: editColsSourceRef.current.value,
             target: editColsTargetRef.current.value,
           },
-        ]);
+        ])
       }
     }
 
-    await add();
+    await add()
 
-    editColsSourceRef.current.value = "";
-    editColsTargetRef.current.value = "";
+    editColsSourceRef.current.value = ""
+    editColsTargetRef.current.value = ""
 
-    editColsSourceRef.current.focus();
+    editColsSourceRef.current.focus()
   }
 
   function saveEditColsHandler(tableIndex) {
@@ -173,43 +173,43 @@ function NewDBConfig({
       ...newDB,
       tables: newDB.tables.map((table, i) => {
         if (i === tableIndex) {
-          table.columns = newColumns;
+          table.columns = newColumns
         }
 
-        return table;
+        return table
       }),
-    });
+    })
 
-    setEditColumnsModal(false);
+    setEditColumnsModal(false)
   }
 
   async function pushNewSQL() {
-    setNewSQLModal(false);
+    setNewSQLModal(false)
     async function push() {
       await setNewDB({
         ...newDB,
         sqls: [...newDB.sqls, newSQL],
-      });
+      })
     }
 
     async function pushEditedSQL(id) {
-      const idInt = parseInt(id);
+      const idInt = parseInt(id)
       await setNewDB({
         ...newDB,
         sqls: newDB.sqls.map((sql, i) => {
           if (idInt === i) {
-            return newSQL;
+            return newSQL
           }
 
-          return sql;
+          return sql
         }),
-      });
+      })
     }
 
-    selectedSQL === null ? await push() : await pushEditedSQL(selectedSQL);
-    setSelectedSQL(null);
-    clearNewSQL();
-    clearQuery();
+    selectedSQL === null ? await push() : await pushEditedSQL(selectedSQL)
+    setSelectedSQL(null)
+    clearNewSQL()
+    clearQuery()
   }
 
   function clearNewSQL() {
@@ -218,7 +218,7 @@ function NewDBConfig({
       type: "",
       query: {},
       intervals: [],
-    });
+    })
   }
 
   function clearQuery() {
@@ -229,39 +229,39 @@ function NewDBConfig({
       wheres: [],
       targetTable: "",
       values: [],
-    });
+    })
   }
 
   function checkQuery() {
-    if (newSQL.label.length === 0) return true;
+    if (newSQL.label.length === 0) return true
 
-    if (newSQL.type.length === 0) return true;
+    if (newSQL.type.length === 0) return true
 
     if (newSQL.type === "read & write") {
-      if (query.columnsSQL.length === 0) return true;
+      if (query.columnsSQL.length === 0) return true
 
-      if (query.from.length === 0) return true;
+      if (query.from.length === 0) return true
 
-      if (query.targetTable === 0) return true;
+      if (query.targetTable === 0) return true
 
-      if (query.values.length === 0) return true;
+      if (query.values.length === 0) return true
 
       const checkValues = query.values.some(
         (value) => !query.columnsSQL.some((col) => value === col.name)
-      );
+      )
 
-      return checkValues;
+      return checkValues
     }
 
-    return true;
+    return true
   }
 
   function editSQL(sql, sqlIndex) {
-    setSelectedSQL(sqlIndex);
+    setSelectedSQL(sqlIndex)
 
     if (sql.type === "read & write") {
-      setNewSQL(sql);
-      setQuery(sql.query);
+      setNewSQL(sql)
+      setQuery(sql.query)
     }
   }
 
@@ -284,28 +284,28 @@ function NewDBConfig({
                 .map((where) => `${where.condition} ${where.clause}`)
                 .join(" ")}`
             : ""
-        }`;
+        }`
 
         query.columnsSQL.length === 0 || query.from.length === 0
           ? setRawQuery("...")
-          : setRawQuery(raw);
+          : setRawQuery(raw)
 
         const rawTarget = `INSERT INTO ${
           query.targetTable
-        } (${query.values.join(", ")})\nVALUES (${query.values.join(", ")})`;
+        } (${query.values.join(", ")})\nVALUES (${query.values.join(", ")})`
 
         query.targetTable.length === 0 || query.values.length === 0
           ? setRawQueryTarget("...")
-          : setRawQueryTarget(rawTarget);
+          : setRawQueryTarget(rawTarget)
       } else {
-        setRawQuery("");
-        setRawQueryTarget("");
+        setRawQuery("")
+        setRawQueryTarget("")
       }
     } else {
-      setRawQuery("");
-      setRawQueryTarget("");
+      setRawQuery("")
+      setRawQueryTarget("")
     }
-  }, [query]);
+  }, [query])
 
   return (
     <>
@@ -338,7 +338,7 @@ function NewDBConfig({
                         onClick={() => {
                           setNewColumns(
                             newColumns.filter((c, i) => i !== index)
-                          );
+                          )
                         }}
                       >
                         delete
@@ -381,7 +381,7 @@ function NewDBConfig({
                         type="text"
                         placeholder="Column name"
                         onKeyDown={(e) => {
-                          if (e.key === "Enter") pushNewColumn();
+                          if (e.key === "Enter") pushNewColumn()
                         }}
                       />
                       {fetchedCols.target.length > 0 && (
@@ -417,9 +417,9 @@ function NewDBConfig({
           <button
             className="btn gray"
             onClick={() => {
-              setEditColumnsModal(false);
-              setSelected({ tableIndex: "" });
-              setFetchedCols({ source: [], target: [] });
+              setEditColumnsModal(false)
+              setSelected({ tableIndex: "" })
+              setFetchedCols({ source: [], target: [] })
             }}
           >
             Cancel
@@ -433,8 +433,8 @@ function NewDBConfig({
           <button
             className="btn green"
             onClick={() => {
-              saveEditColsHandler(selected.tableIndex);
-              setFetchedCols({ source: [], target: [] });
+              saveEditColsHandler(selected.tableIndex)
+              setFetchedCols({ source: [], target: [] })
             }}
           >
             Save
@@ -488,10 +488,10 @@ function NewDBConfig({
           <button
             className="btn gray"
             onClick={() => {
-              clearNewSQL();
-              setNewSQLModal(false);
-              setSelectedSQL(null);
-              clearQuery();
+              clearNewSQL()
+              setNewSQLModal(false)
+              setSelectedSQL(null)
+              clearQuery()
             }}
           >
             cancel
@@ -644,6 +644,7 @@ function NewDBConfig({
                   className=""
                 >
                   <option value="oracle">oracle</option>
+                  <option value="postgres">postgres</option>
                 </select>
               </div>
               <div className="btn-container">
@@ -934,16 +935,16 @@ function NewDBConfig({
                         className="btn fluid sky"
                         type="button"
                         onClick={() => {
-                          setSelected({ tableIndex: tableIndex });
-                          setNewColumns(table.columns);
-                          setEditColumnsModal(true);
+                          setSelected({ tableIndex: tableIndex })
+                          setNewColumns(table.columns)
+                          setEditColumnsModal(true)
                           setSelectedTable({
                             connection: newDB.connection,
                             table: {
                               sourceTable: table.sourceTable,
                               targetTable: table.targetTable,
                             },
-                          });
+                          })
                         }}
                       >
                         edit
@@ -1061,15 +1062,15 @@ function NewDBConfig({
                       className="btn fluid sky"
                       type="button"
                       onClick={() => {
-                        setNewColumns(newTableDB.columns);
-                        setColumnsModal(true);
+                        setNewColumns(newTableDB.columns)
+                        setColumnsModal(true)
                         setSelectedTable({
                           connection: newDB.connection,
                           table: {
                             sourceTable: newTableDB.sourceTable,
                             targetTable: newTableDB.targetTable,
                           },
-                        });
+                        })
                       }}
                       disabled={
                         newTableDB.sourceTable.length === 0 ||
@@ -1094,7 +1095,7 @@ function NewDBConfig({
                         setNewDB({
                           ...newDB,
                           tables: [...newDB.tables, newTableDB],
-                        });
+                        })
                         setNewTableDB({
                           sourceTable: "",
                           targetTable: "",
@@ -1106,7 +1107,7 @@ function NewDBConfig({
                           },
                           columns: [],
                           sqls: [],
-                        });
+                        })
                       }}
                     >
                       add
@@ -1143,8 +1144,8 @@ function NewDBConfig({
                           type="button"
                           className="btn sky"
                           onClick={() => {
-                            editSQL(sql, sqlIndex);
-                            setNewSQLModal(true);
+                            editSQL(sql, sqlIndex)
+                            setNewSQLModal(true)
                           }}
                         >
                           edit
@@ -1198,7 +1199,7 @@ function NewDBConfig({
         </div>
       </form>
     </>
-  );
+  )
 }
 
 NewDBConfig.propTypes = {
@@ -1217,6 +1218,6 @@ NewDBConfig.propTypes = {
   setFetchedCols: PropTypes.func.isRequired,
   getColumns: PropTypes.func.isRequired,
   getColsLoad: PropTypes.bool.isRequired,
-};
+}
 
-export default NewDBConfig;
+export default NewDBConfig

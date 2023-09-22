@@ -1,13 +1,13 @@
-import PropTypes from "prop-types";
-import Modal from "./Modal";
-import { useEffect, useRef, useState } from "react";
-import axios from "../../lib/axios";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleNotch, faXmark } from "@fortawesome/free-solid-svg-icons";
-import { useToast } from "./ToastProvider";
-import Dropdown from "./Dropdown";
-import Sqls from "./Sqls";
-import ReadWriteSQL from "./ReadWriteSQL";
+import PropTypes from "prop-types"
+import Modal from "./Modal"
+import { useEffect, useRef, useState } from "react"
+import axios from "../../lib/axios"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faCircleNotch, faXmark } from "@fortawesome/free-solid-svg-icons"
+import { useToast } from "./ToastProvider"
+import Dropdown from "./Dropdown"
+import Sqls from "./Sqls"
+import ReadWriteSQL from "./ReadWriteSQL"
 
 function DatabaseConfig({
   database,
@@ -29,22 +29,22 @@ function DatabaseConfig({
   intervals = null,
   saveConfigs,
 }) {
-  const { pushToast } = useToast();
-  const [delModal, setDelModal] = useState(false);
-  const [delDB, setDelDB] = useState({ dbIndex: "", connection: {} });
-  const [loadingSource, setLoadingSource] = useState(false);
-  const [loadingTarget, setLoadingTarget] = useState(false);
-  const [errorSource, setErrorSource] = useState(false);
-  const [errorTarget, setErrorTarget] = useState(false);
-  const [selectedInterval, setSelectedInterval] = useState("");
-  const [newSQLModal, setNewSQLModal] = useState(false);
-  const [selectedSQL, setSelectedSQL] = useState(null);
+  const { pushToast } = useToast()
+  const [delModal, setDelModal] = useState(false)
+  const [delDB, setDelDB] = useState({ dbIndex: "", connection: {} })
+  const [loadingSource, setLoadingSource] = useState(false)
+  const [loadingTarget, setLoadingTarget] = useState(false)
+  const [errorSource, setErrorSource] = useState(false)
+  const [errorTarget, setErrorTarget] = useState(false)
+  const [selectedInterval, setSelectedInterval] = useState("")
+  const [newSQLModal, setNewSQLModal] = useState(false)
+  const [selectedSQL, setSelectedSQL] = useState(null)
   const [newSQL, setNewSQL] = useState({
     label: "",
     type: "",
     query: {},
     intervals: [],
-  });
+  })
   const [query, setQuery] = useState({
     columnsSQL: [],
     from: "",
@@ -52,13 +52,13 @@ function DatabaseConfig({
     wheres: [],
     targetTable: "",
     values: [],
-  });
-  const [rawQuery, setRawQuery] = useState("");
-  const [rawQueryTarget, setRawQueryTarget] = useState("");
+  })
+  const [rawQuery, setRawQuery] = useState("")
+  const [rawQueryTarget, setRawQueryTarget] = useState("")
 
   useEffect(() => {
-    setNewSQL({ ...newSQL, query: query });
-  }, [query]);
+    setNewSQL({ ...newSQL, query: query })
+  }, [query])
 
   function clearNewSQL() {
     setNewSQL({
@@ -67,33 +67,33 @@ function DatabaseConfig({
       sourceQuery: "",
       targetQuery: "",
       intervals: [],
-    });
+    })
   }
 
   function checkConnection(connection, setLoad, setError) {
     async function check() {
-      setLoad(true);
+      setLoad(true)
 
       const res = await axios
         .post("/config/check-connection", {
           connection: JSON.stringify(connection),
         })
         .then((res) => {
-          setError(false);
-          return res.data;
+          setError(false)
+          return res.data
         })
         .catch((err) => {
-          console.error(err);
-          setError(true);
-          return null;
+          console.error(err)
+          setError(true)
+          return null
         })
-        .finally(() => setLoad(false));
+        .finally(() => setLoad(false))
 
-      if (res) pushToast(res.ok, res.message);
-      else pushToast(false, `Failed to connect to ${connection.database}`);
+      if (res) pushToast(res.ok, res.message)
+      else pushToast(false, `Failed to connect to ${connection.database}`)
     }
 
-    check();
+    check()
   }
 
   async function saveSQL(dbIndex) {
@@ -101,11 +101,11 @@ function DatabaseConfig({
       await setDatabases(
         databases.map((db, i) => {
           if (dbIndex === i) {
-            db.sqls = [...db.sqls, newSQL];
+            db.sqls = [...db.sqls, newSQL]
           }
-          return db;
+          return db
         })
-      );
+      )
     }
 
     async function update() {
@@ -113,33 +113,33 @@ function DatabaseConfig({
         databases.map((db, i) => {
           if (dbIndex === i) {
             db.sqls = db.sqls.map((sql, sqlIndex) => {
-              if (sqlIndex === selectedSQL) return newSQL;
+              if (sqlIndex === selectedSQL) return newSQL
 
-              return sql;
-            });
+              return sql
+            })
           }
-          return db;
+          return db
         })
-      );
+      )
     }
 
-    selectedSQL === null ? await add() : await update();
+    selectedSQL === null ? await add() : await update()
 
-    clearNewSQL();
-    setNewSQLModal(false);
-    setSelectedSQL(null);
-    clearQuery();
+    clearNewSQL()
+    setNewSQLModal(false)
+    setSelectedSQL(null)
+    clearQuery()
   }
 
   function delSQL(dbIndex, sqlIndex) {
     setDatabases(
       databases.map((db, i) => {
         if (dbIndex === i) {
-          db.sqls = db.sqls.filter((sql, index) => sqlIndex !== index);
+          db.sqls = db.sqls.filter((sql, index) => sqlIndex !== index)
         }
-        return db;
+        return db
       })
-    );
+    )
   }
 
   function addIntervalSQL(dbIndex, sqlIndex, interval) {
@@ -148,15 +148,15 @@ function DatabaseConfig({
         if (dbIndex === dbI) {
           db.sqls = db.sqls.map((sql, sqlI) => {
             if (sqlIndex === sqlI) {
-              sql.intervals = [...sql.intervals, interval];
+              sql.intervals = [...sql.intervals, interval]
             }
-            return sql;
-          });
+            return sql
+          })
         }
 
-        return db;
+        return db
       })
-    );
+    )
   }
 
   function delIntervalSQL(dbIndex, sqlIndex, intervalIndex) {
@@ -167,39 +167,39 @@ function DatabaseConfig({
             if (sqlIndex === sqlI) {
               sql.intervals = sql.intervals.filter(
                 (interval, intervalI) => intervalI !== intervalIndex
-              );
+              )
             }
-            return sql;
-          });
+            return sql
+          })
         }
 
-        return db;
+        return db
       })
-    );
+    )
   }
 
   function checkQuery() {
-    if (newSQL.label.length === 0) return true;
+    if (newSQL.label.length === 0) return true
 
-    if (newSQL.type.length === 0) return true;
+    if (newSQL.type.length === 0) return true
 
     if (newSQL.type === "read & write") {
-      if (query.columnsSQL.length === 0) return true;
+      if (query.columnsSQL.length === 0) return true
 
-      if (query.from.length === 0) return true;
+      if (query.from.length === 0) return true
 
-      if (query.targetTable === 0) return true;
+      if (query.targetTable === 0) return true
 
-      if (query.values.length === 0) return true;
+      if (query.values.length === 0) return true
 
       const checkValues = query.values.some(
         (value) => !query.columnsSQL.some((col) => value === col.name)
-      );
+      )
 
-      return checkValues;
+      return checkValues
     }
 
-    return true;
+    return true
   }
 
   function clearQuery() {
@@ -210,15 +210,15 @@ function DatabaseConfig({
       wheres: [],
       targetTable: "",
       values: [],
-    });
+    })
   }
 
   function editSQL(sql, sqlIndex) {
-    setSelectedSQL(sqlIndex);
+    setSelectedSQL(sqlIndex)
 
     if (sql.type === "read & write") {
-      setNewSQL(sql);
-      setQuery(sql.query);
+      setNewSQL(sql)
+      setQuery(sql.query)
     }
   }
 
@@ -241,28 +241,28 @@ function DatabaseConfig({
                 .map((where) => `${where.condition} ${where.clause}`)
                 .join(" ")}`
             : ""
-        }`;
+        }`
 
         query.columnsSQL.length === 0 || query.from.length === 0
           ? setRawQuery("...")
-          : setRawQuery(raw);
+          : setRawQuery(raw)
 
         const rawTarget = `INSERT INTO ${
           query.targetTable
-        } (${query.values.join(", ")})\nVALUES (${query.values.join(", ")})`;
+        } (${query.values.join(", ")})\nVALUES (${query.values.join(", ")})`
 
         query.targetTable.length === 0 || query.values.length === 0
           ? setRawQueryTarget("...")
-          : setRawQueryTarget(rawTarget);
+          : setRawQueryTarget(rawTarget)
       } else {
-        setRawQuery("");
-        setRawQueryTarget("");
+        setRawQuery("")
+        setRawQueryTarget("")
       }
     } else {
-      setRawQuery("");
-      setRawQueryTarget("");
+      setRawQuery("")
+      setRawQueryTarget("")
     }
-  }, [query]);
+  }, [query])
 
   return (
     <>
@@ -280,8 +280,8 @@ function DatabaseConfig({
           <button
             className="btn green"
             onClick={() => {
-              setDelDB({ dbIndex: "", connection: {} });
-              setDelModal(false);
+              setDelDB({ dbIndex: "", connection: {} })
+              setDelModal(false)
             }}
           >
             Cancel
@@ -289,8 +289,8 @@ function DatabaseConfig({
           <button
             className="btn red"
             onClick={() => {
-              delDatabaseHandler(delDB.dbIndex);
-              setDelModal(false);
+              delDatabaseHandler(delDB.dbIndex)
+              setDelModal(false)
             }}
           >
             Delete
@@ -344,10 +344,10 @@ function DatabaseConfig({
           <button
             className="btn gray"
             onClick={() => {
-              clearNewSQL();
-              setNewSQLModal(false);
-              setSelectedSQL(null);
-              clearQuery();
+              clearNewSQL()
+              setNewSQLModal(false)
+              setSelectedSQL(null)
+              clearQuery()
             }}
           >
             cancel
@@ -375,7 +375,7 @@ function DatabaseConfig({
                   placeholder="Database"
                   value={database.connection.source.database}
                   onChange={(e) => {
-                    updateConnectionSourceHandler(e, index, "database");
+                    updateConnectionSourceHandler(e, index, "database")
                   }}
                   required
                 />
@@ -388,7 +388,7 @@ function DatabaseConfig({
                   placeholder="User"
                   value={database.connection.source.user}
                   onChange={(e) => {
-                    updateConnectionSourceHandler(e, index, "user");
+                    updateConnectionSourceHandler(e, index, "user")
                   }}
                   required
                 />
@@ -401,7 +401,7 @@ function DatabaseConfig({
                   placeholder="Password"
                   value={database.connection.source.password}
                   onChange={(e) => {
-                    updateConnectionSourceHandler(e, index, "password");
+                    updateConnectionSourceHandler(e, index, "password")
                   }}
                   required
                 />
@@ -414,7 +414,7 @@ function DatabaseConfig({
                   placeholder="Host"
                   value={database.connection.source.host}
                   onChange={(e) => {
-                    updateConnectionSourceHandler(e, index, "host");
+                    updateConnectionSourceHandler(e, index, "host")
                   }}
                   required
                 />
@@ -427,7 +427,7 @@ function DatabaseConfig({
                   placeholder="1521"
                   value={database.connection.source.port}
                   onChange={(e) => {
-                    updateConnectionSourceHandler(e, index, "port");
+                    updateConnectionSourceHandler(e, index, "port")
                   }}
                   required
                 />
@@ -438,10 +438,11 @@ function DatabaseConfig({
                   id={"source-dialect-" + index}
                   value={database.connection.source.dialect}
                   onChange={(e) => {
-                    updateConnectionSourceHandler(e, index, "dialect");
+                    updateConnectionSourceHandler(e, index, "dialect")
                   }}
                 >
                   <option value="oracle">oracle</option>
+                  <option value="postgres">postgres</option>
                 </select>
               </div>
               <div className="btn-container">
@@ -478,7 +479,7 @@ function DatabaseConfig({
                   placeholder="Database"
                   value={database.connection.target.database}
                   onChange={(e) => {
-                    updateConnectionTargetHandler(e, index, "database");
+                    updateConnectionTargetHandler(e, index, "database")
                   }}
                   required
                 />
@@ -491,7 +492,7 @@ function DatabaseConfig({
                   placeholder="User"
                   value={database.connection.target.user}
                   onChange={(e) => {
-                    updateConnectionTargetHandler(e, index, "user");
+                    updateConnectionTargetHandler(e, index, "user")
                   }}
                   required
                 />
@@ -504,7 +505,7 @@ function DatabaseConfig({
                   placeholder="Password"
                   value={database.connection.target.password}
                   onChange={(e) => {
-                    updateConnectionTargetHandler(e, index, "password");
+                    updateConnectionTargetHandler(e, index, "password")
                   }}
                   required
                 />
@@ -517,7 +518,7 @@ function DatabaseConfig({
                   placeholder="Host"
                   value={database.connection.target.host}
                   onChange={(e) => {
-                    updateConnectionTargetHandler(e, index, "host");
+                    updateConnectionTargetHandler(e, index, "host")
                   }}
                   required
                 />
@@ -530,7 +531,7 @@ function DatabaseConfig({
                   placeholder="5432"
                   value={database.connection.target.port}
                   onChange={(e) => {
-                    updateConnectionTargetHandler(e, index, "port");
+                    updateConnectionTargetHandler(e, index, "port")
                   }}
                   required
                 />
@@ -541,7 +542,7 @@ function DatabaseConfig({
                   id={"target-dialect-" + index}
                   value={database.connection.target.dialect}
                   onChange={(e) => {
-                    updateConnectionTargetHandler(e, index, "dialect");
+                    updateConnectionTargetHandler(e, index, "dialect")
                   }}
                 >
                   <option value="postgres">postgres</option>
@@ -682,16 +683,16 @@ function DatabaseConfig({
                       <button
                         className="btn fluid sky"
                         onClick={() => {
-                          setSelected({ dbIndex: index, tableIndex: i });
-                          setNewColumns([...table.columns]);
-                          setColumnsModal(true);
+                          setSelected({ dbIndex: index, tableIndex: i })
+                          setNewColumns([...table.columns])
+                          setColumnsModal(true)
                           setSelectedTable({
                             connection: database.connection,
                             table: {
                               sourceTable: table.sourceTable,
                               targetTable: table.targetTable,
                             },
-                          });
+                          })
                         }}
                       >
                         edit
@@ -731,8 +732,8 @@ function DatabaseConfig({
                                     updateTableProperty(index, i, "intervals", [
                                       ...table.intervals,
                                       intervals[selectedInterval],
-                                    ]);
-                                    setSelectedInterval("");
+                                    ])
+                                    setSelectedInterval("")
                                   }}
                                 >
                                   add
@@ -760,7 +761,7 @@ function DatabaseConfig({
                                           table.intervals.filter(
                                             (interval, ii) => ii !== index
                                           )
-                                        );
+                                        )
                                       }}
                                     >
                                       <FontAwesomeIcon icon={faXmark} />
@@ -868,15 +869,15 @@ function DatabaseConfig({
                     <button
                       className="btn fluid sky"
                       onClick={() => {
-                        setNewColumns(newTable.columns);
-                        setColumnsModal(true);
+                        setNewColumns(newTable.columns)
+                        setColumnsModal(true)
                         setSelectedTable({
                           connection: database.connection,
                           table: {
                             sourceTable: newTable.sourceTable,
                             targetTable: newTable.targetTable,
                           },
-                        });
+                        })
                       }}
                       disabled={
                         newTable.sourceTable.length === 0 ||
@@ -924,8 +925,8 @@ function DatabaseConfig({
           <button
             className="btn red"
             onClick={() => {
-              setDelDB({ dbIndex: index, connection: database.connection });
-              setDelModal(true);
+              setDelDB({ dbIndex: index, connection: database.connection })
+              setDelModal(true)
             }}
           >
             delete
@@ -936,7 +937,7 @@ function DatabaseConfig({
         </div>
       </div>
     </>
-  );
+  )
 }
 
 DatabaseConfig.propTypes = {
@@ -956,6 +957,6 @@ DatabaseConfig.propTypes = {
   setSelectedTable: PropTypes.func.isRequired,
   intervals: PropTypes.array,
   saveConfigs: PropTypes.func.isRequired,
-};
+}
 
-export default DatabaseConfig;
+export default DatabaseConfig
