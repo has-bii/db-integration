@@ -1,24 +1,24 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-import { useEffect, useRef, useState } from "react";
-import axios from "../../../lib/axios";
-import { useNavigate } from "react-router-dom";
-import { useCookies } from "react-cookie";
-import { useToast } from "../../components/ToastProvider";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons"
+import { useEffect, useRef, useState } from "react"
+import axios from "../../../lib/axios"
+import { useNavigate } from "react-router-dom"
+import { useCookies } from "react-cookie"
+import { useToast } from "../../components/ToastProvider"
 
 export default function Login() {
-  const { pushToast } = useToast();
-  const [showPassword, setShowPassword] = useState(false);
-  const passRef = useRef();
-  const navigate = useNavigate();
-  const [cookies, setCookie] = useCookies(["access_token"]);
+  const { pushToast } = useToast()
+  const [showPassword, setShowPassword] = useState(false)
+  const passRef = useRef()
+  const navigate = useNavigate()
+  const [cookies, setCookie] = useCookies(["access_token"])
 
   useEffect(() => {
-    if (cookies.access_token) navigate("/");
-  }, []);
+    if (cookies.access_token) navigate("/")
+  }, [])
 
   const submitHandler = async (event) => {
-    event.preventDefault();
+    event.preventDefault()
 
     const response = await axios
       .post("/login", {
@@ -27,21 +27,19 @@ export default function Login() {
       .then((res) => res.data)
       .catch((err) => {
         if (err.response.data.message)
-          pushToast(false, err.response.data.message);
-        console.error("Failed to login: ", err);
-        return null;
-      });
+          pushToast(false, err.response.data.message)
+        console.error("Failed to login: ", err)
+        return null
+      })
 
-    passRef.current.value = "";
+    passRef.current.value = ""
 
     if (response) {
-      pushToast(true, response.message);
+      pushToast(true, response.message)
 
-      setCookie("access_token", response.access_token);
-
-      navigate("/");
+      navigate("/")
     }
-  };
+  }
 
   return (
     <div className="flex h-screen w-screen items-center justify-center">
@@ -78,5 +76,5 @@ export default function Login() {
         </form>
       </div>
     </div>
-  );
+  )
 }

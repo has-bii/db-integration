@@ -17,8 +17,9 @@ router.post("/", (req, res) => {
         .status(200)
         .cookie("access_token", token, {
           sameSite: "strict",
+          secure: true,
         })
-        .json({ message: "Login successful", access_token: token })
+        .json({ message: "Login successful" })
     })
   } else {
     res.status(401).json({ message: "Incorrect password" })
