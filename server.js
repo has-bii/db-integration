@@ -27,7 +27,7 @@ app.use("/api", apiRouter)
 // Serve static files from the Vite development server in development
 if (process.env.NODE_ENV === "production") {
   // Serve Vite's static files in production
-  app.use("/", express.static("dist/frontend"))
+  app.use("/", express.static("frontend/dist"))
 } else {
   // Proxy requests to the Vite development server
   app.use(
