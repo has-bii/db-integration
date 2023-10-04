@@ -5,7 +5,10 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "install-all": "node lib/generateSecretKey.js"
+    "install": "cd frontend && npm install",
+    "build": "cd frontend && npm run build",
+    "dev": "node server.js",
+    "start": "node server.js NODE_ENV=production"
   },
   "author": "",
   "license": "ISC",
@@ -14,6 +17,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "http-proxy-middleware": "^2.0.6",
     "jsonwebtoken": "^9.0.2",
     "node-cron": "^3.0.2",
     "oracledb": "^6.0.3",

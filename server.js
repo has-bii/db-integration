@@ -8,13 +8,12 @@ const apiRouter = require("./API")
 const cors = require("cors")
 const { readErrorJson } = require("./lib/ErrorHandler")
 const fs = require("fs")
+const { createProxyMiddleware } = require("http-proxy-middleware")
 const port = process.env.PORT || 3000 // Define the port
-const FE_URL = process.env.FE_URL || "http://localhost:5173"
 
 app.use(cookieParser())
 app.use(
   cors({
-    origin: FE_URL,
     credentials: true,
   })
 )
@@ -25,6 +24,21 @@ app.use(express.urlencoded({ extended: true })) // for parsing application/x-www
 // Mount the API router under a specific base URL
 app.use("/api", apiRouter)
 
+// Serve static files from the Vite development server in development
+if (process.env.NODE_ENV === "production") {
+  // Serve Vite's static files in production
+  app.use("/", express.static("dist/frontend"))
+} else {
+  // Proxy requests to the Vite development server
+  app.use(
+    "/",
+    createProxyMiddleware({
+      target: process.env.BASE_URL || "http://localhost:5173",
+      changeOrigin: true,
+    })
+  )
+}
+
 // Create an HTTP server to attach WebSocket server to
 const server = http.createServer(app)
 
@@ -32,7 +46,6 @@ const server = http.createServer(app)
 const wss = new WebSocket.Server({
   noServer: true,
   cors: {
-    origin: FE_URL,
     credentials: true,
   },
 })
