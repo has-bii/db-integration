@@ -1,14 +1,11 @@
-import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import { useCookies } from "react-cookie";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faDatabase, faDungeon } from "@fortawesome/free-solid-svg-icons";
-import ErrorTables from "./ErrorLogs";
-import Notifications from "./Notifications";
+import { Link, useLocation } from "react-router-dom"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faDatabase, faDungeon } from "@fortawesome/free-solid-svg-icons"
+import ErrorTables from "./ErrorLogs"
+import Notifications from "./Notifications"
 
 export default function Navbar() {
-  const [cookies, setCookie, removeCookie] = useCookies(["access_token"]);
-  const location = useLocation();
+  const location = useLocation()
 
   return (
     <div className="bg-white drop-shadow-xl relative z-20">
@@ -48,5 +45,5 @@ export default function Navbar() {
         </li>
       </ul>
     </div>
-  );
+  )
 }

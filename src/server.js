@@ -57,7 +57,7 @@ wss.on("connection", (ws) => {
   ws.send(JSON.stringify({ status: "all", data: ErrorJSON }))
 
   // Watch for changes to the error json
-  const FILE_PATH = process.env.ERROR_JSON_FILE || "error/error.json"
+  const FILE_PATH = process.env.ERROR_JSON_FILE || "src/error/error.json"
   let timeout
   fs.watch(FILE_PATH, (eventType) => {
     if (eventType === "change") {
@@ -99,5 +99,5 @@ server.on("upgrade", (request, socket, head) => {
 
 // Start the HTTP server
 server.listen(port, () => {
-  console.log(`Server is running on port ${port}`)
+  console.log(`Server is running on port http://localhost:${port}`)
 })

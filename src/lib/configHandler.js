@@ -5,7 +5,7 @@ const { insertLeftConfig } = require("./compareConfig")
 function readErrorConfig() {
   try {
     const filePath =
-      process.env.ERROR_CONFIG_FILE_PATH || "error/errorConfig.json"
+      process.env.ERROR_CONFIG_FILE_PATH || "src/error/errorConfig.json"
 
     let jsonData
 
@@ -39,7 +39,7 @@ function writeErrorConfig(newErrorConfig) {
 
     // Writing New Error Config
     fs.writeFileSync(
-      process.env.ERROR_CONFIG_FILE_PATH || "error/errorConfig.json",
+      process.env.ERROR_CONFIG_FILE_PATH || "src/error/errorConfig.json",
       JSON.stringify(errorConfig, null, 2),
       "utf-8"
     )
@@ -53,7 +53,7 @@ function writeErrorConfig(newErrorConfig) {
 
 function writeNewConfig(newConfig) {
   try {
-    const configFilePath = process.env.CONFIG_FILE_PATH || "config.json"
+    const configFilePath = process.env.CONFIG_FILE_PATH || "src/config.json"
 
     // Writing new config File
     fs.writeFile(
@@ -76,7 +76,7 @@ function writeNewConfig(newConfig) {
 function writeNewErrorConfig(newConfig) {
   try {
     const configFilePath =
-      process.env.ERROR_CONFIG_FILE_PATH || "error/errorConfig.json"
+      process.env.ERROR_CONFIG_FILE_PATH || "src/error/errorConfig.json"
 
     // Writing new config File
     fs.writeFile(
@@ -98,7 +98,7 @@ function writeNewErrorConfig(newConfig) {
 
 function insertToConfig(newConfig) {
   try {
-    const configFilePath = process.env.CONFIG_FILE_PATH || "config.json"
+    const configFilePath = process.env.CONFIG_FILE_PATH || "src/config.json"
 
     // Reading config file
     const configFile = JSON.parse(fs.readFileSync(configFilePath, "utf-8"))
@@ -118,7 +118,7 @@ function insertToConfig(newConfig) {
 
 function getConfig() {
   try {
-    const filePath = process.env.CONFIG_FILE_PATH || "config.json"
+    const filePath = process.env.CONFIG_FILE_PATH || "src/config.json"
 
     if (fs.existsSync(filePath)) {
       const config = JSON.parse(fs.readFileSync(filePath, "utf-8"))

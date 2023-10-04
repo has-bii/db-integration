@@ -6,7 +6,7 @@ const fs = require("fs")
 
 module.exports = async function mainBackup(TIME_INTERVAL = null, type = null) {
   // Config File Path
-  const path = process.env.CONFIG_FILE_PATH || "config.json"
+  const path = process.env.CONFIG_FILE_PATH || "src/config.json"
 
   // Check the Configuration File if exists
   console.log("Reading config file: ")

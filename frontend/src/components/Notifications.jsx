@@ -1,52 +1,53 @@
-import { faBell } from "@fortawesome/free-solid-svg-icons";
-import React, { useEffect, useState } from "react";
-import Dropdown from "./Dropdown";
-import convertDate from "../../lib/convertDate";
-import axios from "../../lib/axios";
+import { faBell } from "@fortawesome/free-solid-svg-icons"
+import { useEffect, useState } from "react"
+import Dropdown from "./Dropdown"
+import convertDate from "../../lib/convertDate"
+import axios from "../../lib/axios"
 
 export default function Notifications() {
-  const [ErrorJSON, setErrorJSON] = useState([]);
-  const [readErrorJSON, setReadErrorJSON] = useState(0);
+  const [ErrorJSON, setErrorJSON] = useState([])
+  const [readErrorJSON, setReadErrorJSON] = useState(0)
 
   useEffect(() => {
     function connect() {
       const ws = new WebSocket(
-        `${(
-          import.meta.env.VITE_API_URL || "http://localhost:3000/api"
-        ).replace("http", "ws")}`
-      );
+        `${`http://localhost:${import.meta.env.VITE_PORT || 3000}/api`.replace(
+          "http",
+          "ws"
+        )}`
+      )
 
       // WebSocket event listeners
 
       ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
+        const data = JSON.parse(event.data)
 
-        if (data.status === "all") setErrorJSON(data.data);
+        if (data.status === "all") setErrorJSON(data.data)
 
-        if (data.status === "new") if (data.data) setErrorJSON(data.data);
-      };
+        if (data.status === "new") if (data.data) setErrorJSON(data.data)
+      }
     }
 
-    connect();
-  }, []);
+    connect()
+  }, [])
 
   useEffect(() => {
-    setReadErrorJSON(ErrorJSON.filter((err) => !err.isRead).length);
-  }, [ErrorJSON]);
+    setReadErrorJSON(ErrorJSON.filter((err) => !err.isRead).length)
+  }, [ErrorJSON])
 
   function readNotifications() {
     async function read() {
-      await axios.get("/notification/read");
+      await axios.get("/notification/read")
 
       setErrorJSON(
         ErrorJSON.map((err) => {
-          err.isRead = true;
-          return err;
+          err.isRead = true
+          return err
         })
-      );
+      )
     }
 
-    read();
+    read()
   }
 
   return (
@@ -95,5 +96,5 @@ export default function Notifications() {
         </div>
       )}
     </div>
-  );
+  )
 }

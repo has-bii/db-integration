@@ -6,7 +6,7 @@ const backup = require("./backup")
 module.exports = async () => {
   try {
     const errorConfigFilePath =
-      process.env.ERROR_CONFIG_FILE_PATH || "error/errorConfig.json"
+      process.env.ERROR_CONFIG_FILE_PATH || "src/error/errorConfig.json"
 
     let config
 

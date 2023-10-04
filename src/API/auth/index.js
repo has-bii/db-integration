@@ -7,6 +7,8 @@ const getSecretKey = require("../../lib/getSecretKey")
 router.post("/", (req, res) => {
   const { password } = req.body
 
+  console.log("secret_key2=", getSecretKey())
+
   if (process.env.PASSWORD || "service" === password) {
     jwt.sign("Logged", getSecretKey(), (err, token) => {
       if (err) {

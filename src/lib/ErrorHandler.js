@@ -14,7 +14,7 @@ function writeErrorLog(error) {
   try {
     const message = `\n\n====================================================================\nAN ERROR HAS OCCURRED at ${new Date().toLocaleString()} :\n${error}\n====================================================================\n\n`
     console.error(message)
-    const pathFile = `${process.env.LOG_ERROR_FOLDER || "log"}/${new Date()
+    const pathFile = `${process.env.LOG_ERROR_FOLDER || "src/log"}/${new Date()
       .toLocaleDateString()
       .replaceAll("/", "-")}.text`
     fs.writeFile(pathFile, message, { flag: "a" }, (err) => {})
@@ -60,7 +60,7 @@ function writeErrorJson(error) {
     file.unshift(data)
 
     fs.writeFileSync(
-      process.env.ERROR_JSON_FILE || "error/error.json",
+      process.env.ERROR_JSON_FILE || "src/error/error.json",
       JSON.stringify(file, null, 2),
       "utf-8"
     )
@@ -80,7 +80,7 @@ function deleteErrorJSON(data) {
     )
 
     fs.writeFileSync(
-      process.env.ERROR_JSON_FILE || "error/error.json",
+      process.env.ERROR_JSON_FILE || "src/error/error.json",
       JSON.stringify(newFile, null, 2),
       "utf-8"
     )
@@ -92,7 +92,7 @@ function deleteErrorJSON(data) {
 function readErrorJson() {
   try {
     let file = null
-    const FILE_PATH = process.env.ERROR_JSON_FILE || "error/error.json"
+    const FILE_PATH = process.env.ERROR_JSON_FILE || "src/error/error.json"
 
     if (!fs.existsSync(FILE_PATH)) {
       fs.writeFileSync(FILE_PATH, "[]", "utf-8")
@@ -113,7 +113,7 @@ function readErrorJson() {
 
 function clearErrorJSON() {
   try {
-    const FILE_PATH = process.env.ERROR_JSON_FILE || "error/error.json"
+    const FILE_PATH = process.env.ERROR_JSON_FILE || "src/error/error.json"
 
     fs.writeFileSync(FILE_PATH, "[]", "utf-8")
   } catch (error) {
@@ -124,7 +124,7 @@ function clearErrorJSON() {
 
 function readErrors() {
   try {
-    const FILE_PATH = process.env.ERROR_JSON_FILE || "error/error.json"
+    const FILE_PATH = process.env.ERROR_JSON_FILE || "src/error/error.json"
 
     const errorJSON = JSON.parse(readErrorJson()).map((err) => {
       err.isRead = true

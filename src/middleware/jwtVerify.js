@@ -8,8 +8,11 @@ async function authenticateJWT(req, res, next) {
     return res.status(401).json({ message: "Unauthorized" })
   }
 
+  console.log("Secret_Key=", getSecretKey())
+
   jwt.verify(token, getSecretKey(), (err) => {
     if (err) {
+      console.error("Error while JWT Verifying.\nError: ", err)
       return res.status(403).json({ message: "Forbidden" })
     }
     next()
