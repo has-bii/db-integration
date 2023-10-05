@@ -26,13 +26,7 @@ app.use(express.urlencoded({ extended: true })) // for parsing application/x-www
 app.use("/api", apiRouter)
 
 // Serve static files from the Vite development server in development
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../dist")))
-
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../dist", "index.html"))
-  })
-} else {
+if (process.env.NODE_ENV === "development") {
   // Proxy requests to the Vite development server
   app.use(
     "/",
@@ -41,6 +35,12 @@ if (process.env.NODE_ENV === "production") {
       changeOrigin: true,
     })
   )
+} else {
+  app.use(express.static(path.join(__dirname, "../dist")))
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../dist", "index.html"))
+  })
 }
 
 // Create an HTTP server to attach WebSocket server to
