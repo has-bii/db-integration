@@ -9,6 +9,7 @@ const cors = require("cors")
 const { readErrorJson } = require("./lib/ErrorHandler")
 const fs = require("fs")
 const { createProxyMiddleware } = require("http-proxy-middleware")
+const path = require("path")
 const port = process.env.PORT || 3000 // Define the port
 
 app.use(cookieParser())
@@ -26,8 +27,11 @@ app.use("/api", apiRouter)
 
 // Serve static files from the Vite development server in development
 if (process.env.NODE_ENV === "production") {
-  // Serve Vite's static files in production
-  app.use("/", express.static("frontend/dist"))
+  app.use(express.static(path.join(__dirname, "../frontend/dist")))
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"))
+  })
 } else {
   // Proxy requests to the Vite development server
   app.use(
