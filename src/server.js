@@ -27,10 +27,10 @@ app.use("/api", apiRouter)
 
 // Serve static files from the Vite development server in development
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../frontend/dist")))
+  app.use(express.static(path.join(__dirname, "../dist")))
 
   app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"))
+    res.sendFile(path.join(__dirname, "../dist", "index.html"))
   })
 } else {
   // Proxy requests to the Vite development server
