@@ -1,0 +1,7 @@
+services:
+  db-integration:
+    image: has-bii:db-integration
+    build:
+      context: ./
+    ports:
+      - "3000:3000"
